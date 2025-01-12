@@ -2,25 +2,26 @@ package com.project.easytravel
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.project.easytravel.databinding.ActivitySignUpBinding
 
 class SignUp : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initializing Firebase Auth
+        // Initializing Firebase Auth and Firestore
         firebaseAuth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
 
         // Handling navigation to the Sign In screen
         binding.textView.setOnClickListener {
@@ -30,37 +31,96 @@ class SignUp : AppCompatActivity() {
 
         // Handling Sign Up button click
         binding.button.setOnClickListener {
-            val fullName = binding.fullNameEt.text.toString()
-            val email = binding.emailEt.text.toString()
-            val pass = binding.passET.text.toString()
-            val confirmPass = binding.confirmPassEt.text.toString()
+            val fullName = binding.fullNameEt.text.toString().trim()
+            val email = binding.emailEt.text.toString().trim()
+            val pass = binding.passET.text.toString().trim()
+            val confirmPass = binding.confirmPassEt.text.toString().trim()
 
-            // Check if the password is at least 6 characters long
-            if (pass.length < 6) {
-                binding.passET.error = "Password must be at least 6 characters long!"
+            // Reset errors before validation
+            binding.fullNameLayout.error = null
+            binding.emailLayout.error = null
+            binding.passwordLayout.error = null
+            binding.confirmPasswordLayout.error = null
+
+            if (fullName.isEmpty()) {
+                binding.fullNameLayout.error = "Full name is required!"
                 return@setOnClickListener
             }
 
-            // Check if all fields are filled
-            if (email.isNotEmpty() && pass.isNotEmpty() && confirmPass.isNotEmpty()) {
-                // Check if passwords match
-                if (pass == confirmPass) {
-                    firebaseAuth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            Toast.makeText(this, "Sign Up Successful!", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, SignIn::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            Toast.makeText(this, it.exception?.message ?: "Sign Up Failed", Toast.LENGTH_SHORT).show()
-                        }
+            if (email.isEmpty()) {
+                binding.emailLayout.error = "Email is required!"
+                return@setOnClickListener
+            }
+
+            if (pass.isEmpty()) {
+                binding.passwordLayout.error = "Password is required!"
+                return@setOnClickListener
+            }
+
+            if (pass.length < 6) {
+                binding.passwordLayout.error = "Password must be at least 6 characters long!"
+                return@setOnClickListener
+            }
+
+            if (confirmPass.isEmpty()) {
+                binding.confirmPasswordLayout.error = "Confirm password is required!"
+                return@setOnClickListener
+            }
+
+            if (pass != confirmPass) {
+                binding.confirmPasswordLayout.error = "Passwords do not match!"
+                return@setOnClickListener
+            }
+
+            firebaseAuth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val currentUser = firebaseAuth.currentUser
+                    if (currentUser != null) {
+                        saveUserInfo(currentUser.uid, fullName, email)
+                    } else {
+                        binding.emailLayout.error = "User authentication failed!"
                     }
                 } else {
-                    Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
+                    binding.emailLayout.error = task.exception?.message ?: "Sign Up Failed"
+                    Log.e("SignUp", "Error: ${task.exception?.message}")
                 }
-            } else {
-                Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun saveUserInfo(userId: String, fullName: String, email: String) {
+        val userMap = hashMapOf(
+            "uid" to userId,
+            "email" to email,
+            "name" to fullName,
+            "bio" to "Hey! I am using EasyTravel",
+            "image" to ""  // Empty image URL by default
+        )
+
+        firestore.collection("users").document(userId)
+            .set(userMap)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    clearFields()
+                    navigateToMainActivity()
+                } else {
+                    binding.fullNameLayout.error = task.exception?.message ?: "Failed to save user info"
+                    Log.e("SignUp", "Firestore Error: ${task.exception?.message}")
+                }
+            }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun clearFields() {
+        binding.fullNameEt.text?.clear()
+        binding.emailEt.text?.clear()
+        binding.passET.text?.clear()
+        binding.confirmPassEt.text?.clear()
     }
 }
