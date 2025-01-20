@@ -2,7 +2,10 @@ package com.project.easytravel
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -14,9 +17,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class Profile : AppCompatActivity() {
@@ -24,6 +27,7 @@ class Profile : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,14 @@ class Profile : AppCompatActivity() {
         drawerLayout = findViewById(R.id.main)
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        progressBar = findViewById(R.id.progress_bar)
+
+        val updateButton = findViewById<ImageButton>(R.id.update_button)
+        updateButton.setOnClickListener {
+            val intent = Intent(this, Update_Details::class.java)
+            startActivity(intent)
+        }
 
         val toggle = ActionBarDrawerToggle(
             this,
@@ -77,31 +89,58 @@ class Profile : AppCompatActivity() {
         val userNameTextView = headerView.findViewById<TextView>(R.id.user_name)
         val userProfileImage = headerView.findViewById<ImageView>(R.id.user_profile_image)
 
+        val userProfilePage = findViewById<ImageView>(R.id.profile_image)
+        val email = findViewById<TextView>(R.id.user_email)
+        val userpro = findViewById<TextView>(R.id.user_full_name)
+        val bio = findViewById<TextView>(R.id.user_bio)
+
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
             val userId = currentUser.uid
+            progressBar.visibility = View.VISIBLE
             try {
                 firestore.collection("users").document(userId)
                     .get()
                     .addOnSuccessListener { document ->
+                        progressBar.visibility = View.GONE
                         if (document != null && document.exists()) {
                             val fullName = document.getString("name")
                             userNameTextView.text = fullName ?: "Unknown User"
-
-                            val imageUrl = document.getString("image")
+                            val emailUser = document.getString("email")
+                            email.text = emailUser ?: "No email available"
+                            userpro.text = fullName ?: "Unknown User"
+                            bio.text = document.getString("bio")
+                            val imageUrl = document.getString("profileimage")
                             if (!imageUrl.isNullOrEmpty()) {
-                                // Load image logic here if applicable
+                                progressBar.visibility = View.VISIBLE
+                                Glide.with(this)
+                                    .load(imageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_launcher_foreground)
+                                    .error(R.drawable.ic_launcher_foreground)
+                                    .into(userProfileImage)
+
+                                Glide.with(this)
+                                    .load(imageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_launcher_foreground)
+                                    .error(R.drawable.ic_launcher_foreground)
+                                    .into(userProfilePage)
+                                progressBar.visibility = View.GONE
                             } else {
                                 userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
+                                progressBar.visibility = View.GONE
                             }
                         } else {
                             handleInvalidUser(userNameTextView, userProfileImage)
                         }
                     }
                     .addOnFailureListener {
+                        progressBar.visibility = View.GONE
                         handleInvalidUser(userNameTextView, userProfileImage)
                     }
             } catch (e: Exception) {
+                progressBar.visibility = View.GONE
                 handleInvalidUser(userNameTextView, userProfileImage)
             }
         } else {
@@ -121,21 +160,6 @@ class Profile : AppCompatActivity() {
         userNameTextView.text = "Invalid User"
         userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
         Toast.makeText(this, "Invalid username or password.", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun handleFirebaseAuthError(e: Exception) {
-        if (e is FirebaseAuthException) {
-            when (e.errorCode) {
-                "ERROR_INVALID_EMAIL", "ERROR_WRONG_PASSWORD", "ERROR_USER_NOT_FOUND" -> {
-                    Toast.makeText(this, "Invalid username or password.", Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                    Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else {
-            Toast.makeText(this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onBackPressed() {
