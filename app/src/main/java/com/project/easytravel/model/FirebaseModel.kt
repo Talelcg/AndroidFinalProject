@@ -5,7 +5,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.project.easytravel.base.Constants
-import com.project.easytravel.base.EmptyCallback
 
 class FirebaseModel {
 
@@ -19,33 +18,6 @@ class FirebaseModel {
         database.firestoreSettings = settings
     }
 
-    fun add(user: User, callback: EmptyCallback) {
-        database.collection(Constants.COLLECTIONS.USERS)
-            .document(user.id)
-            .set(user.json)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    callback()
-                } else {
-                    Log.e("FirebaseModel", "Error adding user: ${task.exception?.message}")
-                    callback()
-                }
-            }
-    }
-
-    fun update(user: User, callback: EmptyCallback) {
-        database.collection(Constants.COLLECTIONS.USERS)
-            .document(user.id)
-            .update(user.json)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    callback()
-                } else {
-                    Log.e("FirebaseModel", "Error updating user: ${task.exception?.message}")
-                    callback()
-                }
-            }
-    }
 
     fun updateUserDetails(userId: String, updatedName: String, updatedBio: String, callback: (Boolean) -> Unit) {
         val userMap: Map<String, Any> = hashMapOf(

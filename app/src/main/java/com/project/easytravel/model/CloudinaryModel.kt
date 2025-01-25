@@ -37,19 +37,19 @@ class CloudinaryModel {
             .option(
                 "folder",
                 "images"
-            ) // Optional: Specify a folder in your Cloudinary account
+            )
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {
-                    // Called when upload starts
+
                 }
 
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
-                    // Called during upload progress
+
                 }
 
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val publicUrl = resultData["secure_url"] as? String ?: ""
-                    onSuccess(publicUrl) // Return the URL of the uploaded image
+                    onSuccess(publicUrl)
                 }
 
                 override fun onError(requestId: String?, error: ErrorInfo?) {

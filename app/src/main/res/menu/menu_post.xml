@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit_post"
+        android:title="Edit"
+        android:background="@drawable/rounded_button" />
+
+    <item
+        android:id="@+id/delete_post"
+        android:title="Delete"
+        android:background="@drawable/rounded_button" />
+</menu>
