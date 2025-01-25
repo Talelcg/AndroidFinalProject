@@ -3,10 +3,13 @@ package com.project.easytravel
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.project.easytravel.databinding.ActivitySignUpBinding
+import com.project.easytravel.model.Model
+import com.project.easytravel.model.User
 
 class SignUp : AppCompatActivity() {
 
@@ -19,24 +22,20 @@ class SignUp : AppCompatActivity() {
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initializing Firebase Auth and Firestore
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        // Handling navigation to the Sign In screen
         binding.textView.setOnClickListener {
             val intent = Intent(this, SignIn::class.java)
             startActivity(intent)
         }
 
-        // Handling Sign Up button click
         binding.button.setOnClickListener {
             val fullName = binding.fullNameEt.text.toString().trim()
             val email = binding.emailEt.text.toString().trim()
             val pass = binding.passET.text.toString().trim()
             val confirmPass = binding.confirmPassEt.text.toString().trim()
 
-            // Reset errors before validation
             binding.fullNameLayout.error = null
             binding.emailLayout.error = null
             binding.passwordLayout.error = null
@@ -72,7 +71,12 @@ class SignUp : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            binding.progressBar.visibility = View.VISIBLE
+
             firebaseAuth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { task ->
+
+                binding.progressBar.visibility = View.GONE
+
                 if (task.isSuccessful) {
                     val currentUser = firebaseAuth.currentUser
                     if (currentUser != null) {
@@ -89,18 +93,24 @@ class SignUp : AppCompatActivity() {
     }
 
     private fun saveUserInfo(userId: String, fullName: String, email: String) {
-        val userMap = hashMapOf(
-            "uid" to userId,
-            "email" to email,
-            "name" to fullName,
-            "bio" to "Hey! I am using EasyTravel",
-            "image" to ""  // Empty image URL by default
+        val user = User(
+            id = userId,
+            email = email,
+            name = fullName,
+            bio = "Hey! I am using EasyTravel",
+            profileimage = ""
         )
 
+
+
         firestore.collection("users").document(userId)
-            .set(userMap)
+            .set(user.json)
             .addOnCompleteListener { task ->
+                binding.progressBar.visibility = View.GONE // Hide Progress Bar
+
                 if (task.isSuccessful) {
+                    Model.shared.saveUserToRoom(user)
+
                     clearFields()
                     navigateToMainActivity()
                 } else {

@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private val db = AppLocalDb.database  // גישה למאגר המקומי
+    private val db = AppLocalDb.database
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             val userId = currentUser.uid
 
             CoroutineScope(Dispatchers.IO).launch {
-                val localUser = db.userDao().getUserById(userId)  // שליפה מהמאגר המקומי
+                val localUser = db.userDao().getUserById(userId)
 
                 if (localUser != null) {
                     runOnUiThread {
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                         userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)}
                     }
                 } else {
-                    // אם המשתמש לא נמצא ב- Room, שלוף מ- Firestore
+
                     firestore.collection("users").document(userId)
                         .get()
                         .addOnSuccessListener { document ->
@@ -106,10 +106,10 @@ class MainActivity : AppCompatActivity() {
                                     userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
                                 }
 
-                                // שמירת המשתמש ב- Room
+
                                 val user = User(userId, currentUser.email ?: "", fullName, "", imageUrl)
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    db.userDao().insertUsers(user)
+                                    db.userDao().insertUser(user)
                                 }
                             } else {
                                 runOnUiThread {
