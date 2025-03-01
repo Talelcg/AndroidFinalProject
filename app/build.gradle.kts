@@ -67,6 +67,7 @@ dependencies {
 
     implementation (libs.androidx.room.runtime)
     kapt (libs.androidx.room.compiler)
+    implementation ("me.zhanghai.android.materialratingbar:library:1.4.0")
     implementation (libs.androidx.room.ktx)
 
     implementation ("com.google.android.gms:play-services-auth:20.6.0")
@@ -74,7 +75,6 @@ dependencies {
 
     implementation ("com.cloudinary:cloudinary-android:3.0.2")
     implementation ("com.squareup.picasso:picasso:2.8")
-
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
