@@ -1,19 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
+        android:icon="@drawable/landscape"
         android:title="All Trips" />
 
     <item
         android:id="@+id/nav_profile"
+        android:icon="@drawable/profile"
         android:title="Profile" />
     <item
-        android:id="@+id/nav_settings"
-        android:title="Destinations" />
+        android:id="@+id/nav_travelplanner"
+        android:icon="@drawable/edit_road"
+        android:title="Plan &amp; Go" />
     <item
         android:id="@+id/nav_create_post"
-        android:icon="@drawable/ic_add"
+        android:icon="@drawable/addpost"
         android:title="Create Post" />
     <item
         android:id="@+id/nav_logout"
+        android:icon="@drawable/out"
         android:title="Logout" />
 </menu>
