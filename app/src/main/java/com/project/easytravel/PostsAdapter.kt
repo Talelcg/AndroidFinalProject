@@ -5,14 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.project.easytravel.R
-import com.project.easytravel.model.Trip
+import com.project.easytravel.model.Post
 import com.squareup.picasso.Picasso
 
-class TripsAdapter : RecyclerView.Adapter<TripsAdapter.TripViewHolder>() {
-    private var tripList = mutableListOf<Trip>()
+class PostsAdapter : RecyclerView.Adapter<PostsAdapter.TripViewHolder>() {
+    private var tripList = mutableListOf<Post>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trip, parent, false)
@@ -26,7 +25,7 @@ class TripsAdapter : RecyclerView.Adapter<TripsAdapter.TripViewHolder>() {
 
     override fun getItemCount(): Int = tripList.size
 
-    fun updateList(newList: List<Trip>) {
+    fun updateList(newList: List<Post>) {
         tripList.clear()
         tripList.addAll(newList)
         notifyDataSetChanged() // 🔴 Forces UI to refresh
@@ -37,7 +36,7 @@ class TripsAdapter : RecyclerView.Adapter<TripsAdapter.TripViewHolder>() {
         private val descriptionTextView: TextView = itemView.findViewById(R.id.tripDescription)
         private val tripImageView: ImageView = itemView.findViewById(R.id.tripImage)
 
-        fun bind(trip: Trip) {
+        fun bind(trip: Post) {
             titleTextView.text = trip.title
             descriptionTextView.text = trip.description
             if (!trip.imageUrl.isNullOrEmpty()) {

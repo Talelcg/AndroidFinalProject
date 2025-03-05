@@ -91,4 +91,38 @@ class FirebaseModel {
                 }
             }
     }
+    fun createPost(post: Post, callback: (Boolean) -> Unit) {
+        val postRef = database.collection("posts").document() // ✅ Firebase auto-generates ID
+        val postId = postRef.id  // ✅ Get the auto-generated ID
+
+        val postMap = post.copy(id = postId)  // ✅ Assign Firebase ID
+
+        postRef.set(postMap)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener { exception ->
+                callback(false)
+                Log.e("FirebaseModel", "Error creating post: ${exception.message}")
+            }
+    }
+    fun getPostById(postId: String, callback: (Post?) -> Unit) {
+        database.collection("posts")
+            .document(postId)
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if (document != null && document.exists()) {
+                        val post = document.toObject(Post::class.java)
+                        callback(post)
+                    } else {
+                        callback(null)
+                    }
+                } else {
+                    Log.e("FirebaseModel", "Error getting post: ${task.exception?.message}")
+                    callback(null)
+                }
+            }
+    }
 }

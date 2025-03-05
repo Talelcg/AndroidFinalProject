@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.project.easytravel.model.dao.PostDao
+import com.project.easytravel.model.dao.UserDao
 
-@Database(entities = [Trip::class], version = 2, exportSchema = false)
+@Database(entities = [User::class,Post::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun tripDao(): TripDao
+    abstract fun postDao(): PostDao
+    abstract fun userDao(): UserDao
+
 
     companion object {
         @Volatile
@@ -18,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "trip_database"
+                    "posts_database"
                 ).build()
                 INSTANCE = instance
                 instance

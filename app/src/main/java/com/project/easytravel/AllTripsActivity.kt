@@ -8,21 +8,18 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.project.easytravel.base.TripsViewModel
-import com.project.easytravel.model.Trip
-import com.project.easytravel.ui.TripsAdapter
-import com.project.easytravel.model.TripDao
+import com.project.easytravel.model.Post
+import com.project.easytravel.ui.PostsAdapter
 
 class AllTripsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var viewModel: TripsViewModel
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TripsAdapter
+    private lateinit var adapter: PostsAdapter
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
 
@@ -70,11 +67,11 @@ class AllTripsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private fun setupRecyclerView() {
         recyclerView = findViewById(R.id.recyclerViewTrips)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = TripsAdapter()
+        adapter = PostsAdapter()
         recyclerView.adapter = adapter
     }
     private fun loadTrips() {
-        viewModel.allTrips.observe(this) { trips: List<Trip> ->
+        viewModel.allTrips.observe(this) { trips: List<Post> ->
             if (trips.isEmpty()) {
                 Log.d("DEBUG", "No trips found in database.")
             } else {

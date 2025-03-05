@@ -7,8 +7,9 @@ import androidx.room.TypeConverters
 @Entity
 @TypeConverters(Converters::class)
 data class Post(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey val id: String,
     val title: String = "",
+    val place: String = "",
     val description: String = "",
     val imageUrl: String = "",
     val rating: Float = 0f,
