@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -17,13 +16,11 @@
         <activity
             android:name=".TravelPlanner"
             android:exported="false" />
-        <activity
-            android:name=".model.TravelPlanner"
-            android:exported="false" />
+
         <activity
             android:name=".Update_Details"
             android:exported="false" />
-        <activity android:name=".AllTripsActivity"/>
+        <activity android:name=".AllTripsActivity" android:exported="false"/>
         <activity
             android:name=".Profile"
             android:exported="false" />
@@ -36,14 +33,13 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-        <activity android:name=".CreatePostActivity"/>
-        <activity android:name=".CommentsActivity" />
+        <activity android:name=".CreatePostActivity" android:exported="false"/>
+        <activity android:name=".CommentsActivity" android:exported="false"/>
         <activity
             android:name=".SignIn"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
