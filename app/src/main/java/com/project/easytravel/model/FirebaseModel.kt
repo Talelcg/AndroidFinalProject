@@ -91,4 +91,76 @@ class FirebaseModel {
                 }
             }
     }
+    fun createPost(post: Post, callback: (Boolean) -> Unit) {
+        val postRef = database.collection("posts").document() // Firebase auto-generates ID
+        val postId = postRef.id  // Get the auto-generated ID
+
+        val postMap = post.copy(id = postId)  // Assign Firebase ID
+
+        postRef.set(postMap)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener { exception ->
+                callback(false)
+                Log.e("FirebaseModel", "Error creating post: ${exception.message}")
+            }
+    }
+    fun getAllPosts(callback: (List<Post>) -> Unit) {
+        database.collection("posts").get()
+            .addOnSuccessListener { snapshot ->
+                val posts = snapshot.documents.mapNotNull { it.toObject(Post::class.java) }
+                callback(posts)
+            }
+    }
+
+    fun updatePost(post: Post) {
+        database.collection("posts").document(post.id).set(post)
+    }
+    fun getPostById(postId: String, callback: (Post?) -> Unit) {
+        database.collection("posts")
+            .document(postId)
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if (document != null && document.exists()) {
+                        val post = document.toObject(Post::class.java)
+                        callback(post)
+                    } else {
+                        callback(null)
+                    }
+                } else {
+                    Log.e("FirebaseModel", "Error getting post: ${task.exception?.message}")
+                    callback(null)
+                }
+            }
+    }
+    fun addComment(comment: Comment) {
+        database.collection("comments")
+            .document(comment.id)
+            .set(comment)
+            .addOnSuccessListener {
+                Log.d("FirebaseModel", "Comment added successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseModel", "Error adding comment: ${e.message}")
+            }
+    }
+
+    // Get comments for a specific post
+    fun getCommentsForPost(postId: String, callback: (List<Comment>) -> Unit) {
+        database.collection("comments")
+            .whereEqualTo("postId", postId)
+            .orderBy("timestamp")
+            .get()
+            .addOnSuccessListener { result ->
+                val comments = result.toObjects(Comment::class.java)
+                callback(comments)
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseModel", "Error fetching comments: ${e.message}")
+                callback(emptyList()) // Return an empty list if fetch fails
+            }
+    }
 }

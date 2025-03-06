@@ -18,14 +18,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
-import com.project.easytravel.base.TripsViewModel
+import com.project.easytravel.base.PostViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var viewModel: TripsViewModel
+    private lateinit var viewModel: PostViewModel
+
     private val db = AppLocalDb.database
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        viewModel = ViewModelProvider(this).get(TripsViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(PostViewModel::class.java)
 
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem ->

@@ -47,7 +47,7 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.google.code.gson:gson:2.8.9")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -65,7 +65,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
+    implementation ("com.google.android.material:material:1.9.0")
     implementation (libs.androidx.room.runtime)
     kapt (libs.androidx.room.compiler)
     implementation ("me.zhanghai.android.materialratingbar:library:1.4.0")
