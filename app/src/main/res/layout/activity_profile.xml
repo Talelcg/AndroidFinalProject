@@ -16,8 +16,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:layout_marginTop="20dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
 
         <TextView
             android:id="@+id/user_full_name"
@@ -40,11 +42,11 @@
             android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackground"
             android:contentDescription="update_details"
-            android:src="@drawable/edit_details"
             android:scaleType="center"
+            android:src="@drawable/edit_details"
+            app:layout_constraintBottom_toBottomOf="@id/user_full_name"
             app:layout_constraintStart_toEndOf="@id/user_full_name"
-            app:layout_constraintTop_toTopOf="@id/user_full_name"
-            app:layout_constraintBottom_toBottomOf="@id/user_full_name" />
+            app:layout_constraintTop_toTopOf="@id/user_full_name" />
 
         <TextView
             android:id="@+id/user_email"
@@ -69,9 +71,9 @@
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.501"
-            app:shapeAppearanceOverlay="@style/CircularShape"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/user_email" />
+            app:layout_constraintTop_toBottomOf="@id/user_email"
+            app:shapeAppearanceOverlay="@style/CircularShape" />
 
         <View
             android:id="@+id/divider"
@@ -79,24 +81,24 @@
             android:layout_height="4dp"
             android:layout_marginTop="16dp"
             android:background="@color/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/profile_image"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/profile_image" />
 
         <TextView
             android:id="@+id/user_bio"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginBottom="16dp"
-            android:text="User bio will be displayed here"
-            android:textSize="16sp"
+            android:layout_width="371dp"
+            android:layout_height="69dp"
+            android:layout_marginBottom="68dp"
             android:background="@drawable/rounded_button"
-            android:textColor="@color/black"
             android:fontFamily="sans-serif"
             android:gravity="center"
+            android:text="User bio will be displayed here"
+            android:textColor="@color/black"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -105,10 +107,10 @@
             android:layout_marginTop="16dp"
             android:indeterminate="true"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

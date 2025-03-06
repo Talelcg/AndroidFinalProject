@@ -67,7 +67,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
-                R.id.nav_settings -> {
+                R.id.nav_travelplanner -> {
+                    val intent = Intent(this, TravelPlanner::class.java)
+                    startActivity(intent)
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_logout -> {

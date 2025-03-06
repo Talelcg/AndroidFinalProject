@@ -18,6 +18,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"] ?: ""}\"")
         buildConfigField("String", "CLOUD_NAME", "\"${project.properties["CLOUD_NAME"] ?: ""}\"")
         buildConfigField("String", "API_KEY", "\"${project.properties["API_KEY"] ?: ""}\"")
         buildConfigField("String", "API_SECRET", "\"${project.properties["API_SECRET"] ?: ""}\"")
@@ -79,5 +80,7 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
 
-
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10")
 }
