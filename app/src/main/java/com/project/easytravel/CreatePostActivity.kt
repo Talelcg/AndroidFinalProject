@@ -19,18 +19,27 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import com.project.easytravel.base.TripsViewModel
-import com.project.easytravel.model.Trip
+import com.google.firebase.auth.FirebaseAuth
+import com.project.easytravel.model.Post
+import com.project.easytravel.model.FirebaseModel
 import com.idz.colman24class2.model.CloudinaryModel
+import com.project.easytravel.model.AppDatabase
+import com.project.easytravel.model.dao.PostDao
+import com.project.easytravel.model.dao.AppLocalDb.database
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.zhanghai.android.materialratingbar.MaterialRatingBar
-import java.io.IOException
 
 class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var viewModel: TripsViewModel
+    private lateinit var postDao: PostDao
+
     private lateinit var cloudinaryModel: CloudinaryModel
+    private lateinit var firebaseModel: FirebaseModel
     private lateinit var titleEditText: EditText
     private lateinit var placeEditText: EditText
     private lateinit var descriptionEditText: EditText
@@ -46,9 +55,11 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_post)
-
-        // Initialize Cloudinary
         CloudinaryModel.initCloudinary(this)
+        cloudinaryModel = CloudinaryModel()
+        val database = AppDatabase.getDatabase(this)
+        postDao = database.postDao()
+        firebaseModel = FirebaseModel()
 
         initializeUI()
         setupListeners()
@@ -56,24 +67,15 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     }
 
     private fun initializeUI() {
-
-
-        try {
-            viewModel = ViewModelProvider(this).get(TripsViewModel::class.java)
-            cloudinaryModel = CloudinaryModel()
-            titleEditText = findViewById(R.id.editTextTitle) ?: throw NullPointerException("editTextTitle not found")
-            placeEditText = findViewById(R.id.editTextPlace) ?: throw NullPointerException("editTextPlace not found")
-            descriptionEditText = findViewById(R.id.editTextDescription) ?: throw NullPointerException("editTextDescription not found")
-            imageView = findViewById(R.id.imageView) ?: throw NullPointerException("imageView not found")
-            choosePhotoButton = findViewById(R.id.buttonChoosePhoto) ?: throw NullPointerException("buttonChoosePhoto not found")
-            createButton = findViewById(R.id.buttonCreate) ?: throw NullPointerException("buttonCreate not found")
-            ratingBar = findViewById(R.id.ratingBar) ?: throw NullPointerException("ratingBar not found")
-            drawerLayout = findViewById(R.id.drawer_layout) ?: throw NullPointerException("drawer_layout not found")
-            navView = findViewById(R.id.nav_view) ?: throw NullPointerException("nav_view not found")
-        } catch (e: NullPointerException) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-        }
+        titleEditText = findViewById(R.id.editTextTitle)
+        placeEditText = findViewById(R.id.editTextPlace)
+        descriptionEditText = findViewById(R.id.editTextDescription)
+        imageView = findViewById(R.id.imageView)
+        choosePhotoButton = findViewById(R.id.buttonChoosePhoto)
+        createButton = findViewById(R.id.buttonCreate)
+        ratingBar = findViewById(R.id.ratingBar)
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navView = findViewById(R.id.nav_view)
     }
 
     private fun setupListeners() {
@@ -100,57 +102,6 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
         builder.show()
-    }
-
-    private fun createPost() {
-        val title = titleEditText.text.toString().trim()
-        val place = placeEditText.text.toString().trim()
-        val description = descriptionEditText.text.toString().trim()
-        val rating = ratingBar.rating
-
-        if (title.isNotEmpty() && place.isNotEmpty() && description.isNotEmpty()) {
-            if (imageUri != null) {
-                uploadImageToCloudinary(title, place, description, rating)
-            } else if (capturedBitmap != null) {
-                uploadBitmapToCloudinary(title, place, description, rating)
-            } else {
-                Toast.makeText(this, "Please select or capture an image!", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun uploadImageToCloudinary(title: String, place: String, description: String, rating: Float) {
-        cloudinaryModel.uploadImage(imageUri!!) { imageUrl, error ->
-            if (error == null && imageUrl != null) {
-                savePostToDatabase(title, place, description, rating, imageUrl)
-            } else {
-                Toast.makeText(this, "Image upload failed!", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun uploadBitmapToCloudinary(title: String, place: String, description: String, rating: Float) {
-        cloudinaryModel.uploadBitmap(capturedBitmap!!, onSuccess = { imageUrl ->
-            savePostToDatabase(title, place, description, rating, imageUrl)
-        }, onError = {
-            Toast.makeText(this, "Bitmap upload failed!", Toast.LENGTH_SHORT).show()
-        })
-    }
-
-    private fun savePostToDatabase(title: String, place: String, description: String, rating: Float, imageUrl: String) {
-        val trip = Trip(title = title, description = "$place\n$description\nRating: $rating", imageUrl = imageUrl)
-
-        viewModel.insertTrip(trip)
-
-        // 🔴 Force UI Refresh
-        viewModel.allTrips.observe(this) { trips ->
-            Log.d("DEBUG", "Updated Trip List: ${trips.size} trips available")
-        }
-
-        Toast.makeText(this, "Post Created!", Toast.LENGTH_SHORT).show()
-        finish()
     }
 
     private fun selectImageFromGallery() {
@@ -182,7 +133,136 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private fun loadImage(uri: Uri) {
         Picasso.get().load(uri).into(imageView)
     }
+    private fun uploadImageToCloudinary(postId: String,title: String, place: String, description: String, rating: Float) {
+        cloudinaryModel.uploadImage(imageUri!!) { imageUrl, error ->
+            if (error == null && imageUrl != null) {
+                Log.e("trying2","trying2")
+                savePostToFirebase(postId =postId,title, place, description, rating, imageUrl)
+            } else {
+                Toast.makeText(this, "Image upload failed!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
+    private fun uploadBitmapToCloudinary(postId: String ,title: String, place: String, description: String, rating: Float) {
+        cloudinaryModel.uploadBitmap(capturedBitmap!!, onSuccess = { imageUrl ->
+            savePostToFirebase(postId =postId ,title, place, description, rating, imageUrl)
+        }, onError = {
+            Toast.makeText(this, "Bitmap upload failed!", Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    private fun createPost() {
+        val title = titleEditText.text.toString().trim()
+        val place = placeEditText.text.toString().trim()
+        val description = descriptionEditText.text.toString().trim()
+        val rating = ratingBar.rating
+
+        if (title.isNotEmpty() && place.isNotEmpty() && description.isNotEmpty()) {
+            val postId = generatePostId()  // Generate a unique ID for this post
+
+            lifecycleScope.launch {
+                val existingPost = withContext(Dispatchers.IO) {
+                    postDao.getPostById(postId)  // Check by unique ID
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (existingPost != null) {
+                        Toast.makeText(this@CreatePostActivity, "This post already exists!", Toast.LENGTH_SHORT).show()
+                        return@withContext
+                    }
+
+                    if (imageUri != null) {
+                        uploadImageToCloudinary(postId, title, place, description, rating)
+                    } else if (capturedBitmap != null) {
+                        uploadBitmapToCloudinary(postId, title, place, description, rating)
+                    } else {
+                        Toast.makeText(this@CreatePostActivity, "Please select or capture an image!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun generatePostId(): String {
+        return java.util.UUID.randomUUID().toString()  // Generates a unique ID
+    }
+    private fun savePostToFirebase(postId: String, title: String, place: String, description: String, rating: Float, imageUrl: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        val post = Post(
+            id = postId,
+            place = place,// Use generated Post ID
+            title = title,
+            description =  description,
+            imageUrl = imageUrl,
+            rating = rating,
+            likes = mutableListOf(),
+            comments = mutableListOf(),
+            userId = userId
+        )
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                postDao.insertPost(post)  // Save in Room with the same ID
+            }
+
+            withContext(Dispatchers.Main) {
+                firebaseModel.createPost(post) { success ->
+                    if (success) {
+                        Toast.makeText(this@CreatePostActivity, "Post Created!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        Toast.makeText(this@CreatePostActivity, "Error creating post!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+    private fun fetchPostDetails(postId: String) {  // Pass postId as parameter
+        lifecycleScope.launch {
+            val existingPost = withContext(Dispatchers.IO) {
+                postDao.getPostById(postId)  // Retrieve post by unique ID
+            }
+
+            if (existingPost != null) {
+                withContext(Dispatchers.Main) {
+                    titleEditText.setText(existingPost.title)
+                    placeEditText.setText(existingPost.description.split("\n")[0])
+                    descriptionEditText.setText(existingPost.description.split("\n")[1])
+                    ratingBar.rating = existingPost.rating
+
+                    Glide.with(this@CreatePostActivity)
+                        .load(existingPost.imageUrl)
+                        .placeholder(R.drawable.ic_launcher_foreground)
+                        .into(imageView)
+                }
+            } else {
+                firebaseModel.getPostById(postId) { post ->
+                    if (post != null) {
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                postDao.insertPost(post)  // Cache in Room
+                            }
+                        }
+
+                        runOnUiThread {
+                            titleEditText.setText(post.title)
+                            placeEditText.setText(post.description.split("\n")[0])
+                            descriptionEditText.setText(post.description.split("\n")[1])
+                            ratingBar.rating = post.rating
+
+                            Glide.with(this@CreatePostActivity)
+                                .load(post.imageUrl)
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(imageView)
+                        }
+                    }
+                }
+            }
+        }
+    }
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> startActivity(Intent(this, AllTripsActivity::class.java))
