@@ -64,7 +64,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
+    implementation ("com.google.android.material:material:1.9.0")
     implementation (libs.androidx.room.runtime)
     kapt (libs.androidx.room.compiler)
     implementation ("me.zhanghai.android.materialratingbar:library:1.4.0")

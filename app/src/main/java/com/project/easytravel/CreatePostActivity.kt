@@ -159,11 +159,11 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         val rating = ratingBar.rating
 
         if (title.isNotEmpty() && place.isNotEmpty() && description.isNotEmpty()) {
-            val postId = generatePostId()  // ✅ Generate a unique ID for this post
+            val postId = generatePostId()  // Generate a unique ID for this post
 
             lifecycleScope.launch {
                 val existingPost = withContext(Dispatchers.IO) {
-                    postDao.getPostById(postId)  // ✅ Check by unique ID
+                    postDao.getPostById(postId)  // Check by unique ID
                 }
 
                 withContext(Dispatchers.Main) {
@@ -186,14 +186,14 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         }
     }
     private fun generatePostId(): String {
-        return java.util.UUID.randomUUID().toString()  // ✅ Generates a unique ID
+        return java.util.UUID.randomUUID().toString()  // Generates a unique ID
     }
     private fun savePostToFirebase(postId: String, title: String, place: String, description: String, rating: Float, imageUrl: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val post = Post(
             id = postId,
-            place = place,// ✅ Use generated Post ID
+            place = place,// Use generated Post ID
             title = title,
             description =  description,
             imageUrl = imageUrl,
@@ -205,7 +205,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                postDao.insertPost(post)  // ✅ Save in Room with the same ID
+                postDao.insertPost(post)  // Save in Room with the same ID
             }
 
             withContext(Dispatchers.Main) {
@@ -220,10 +220,10 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
     }
-    private fun fetchPostDetails(postId: String) {  // ✅ Pass postId as parameter
+    private fun fetchPostDetails(postId: String) {  // Pass postId as parameter
         lifecycleScope.launch {
             val existingPost = withContext(Dispatchers.IO) {
-                postDao.getPostById(postId)  // ✅ Retrieve post by unique ID
+                postDao.getPostById(postId)  // Retrieve post by unique ID
             }
 
             if (existingPost != null) {
@@ -243,7 +243,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                     if (post != null) {
                         lifecycleScope.launch {
                             withContext(Dispatchers.IO) {
-                                postDao.insertPost(post)  // ✅ Cache in Room
+                                postDao.insertPost(post)  // Cache in Room
                             }
                         }
 
