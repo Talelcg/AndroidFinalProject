@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var viewModel: PostViewModel
+
     private val db = AppLocalDb.database
 
     override fun onCreate(savedInstanceState: Bundle?) {

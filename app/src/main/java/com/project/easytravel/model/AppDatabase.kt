@@ -17,6 +17,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun commentDao(): CommentDao
 
 
+
+
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null

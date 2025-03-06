@@ -37,7 +37,6 @@ class CloudinaryModel {
     }
 
     fun uploadImage(imageUri: Uri, callback: (String?, String?) -> Unit) {
-        Log.e("tryingcloud","tryingcloud")
         MediaManager.get().upload(imageUri)
             .option("public_id", UUID.randomUUID().toString())
             .callback(object : UploadCallback {
