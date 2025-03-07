@@ -1,7 +1,8 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:name=".base.MyApplication"
@@ -14,39 +15,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyTravel"
         tools:targetApi="31">
-        <activity
-            android:name=".TravelPlanner"
-            android:exported="false" />
-        <activity
-            android:name=".model.TravelPlanner"
-            android:exported="false" />
-        <activity
-            android:name=".Update_Details"
-            android:exported="false" />
-        <activity android:name=".AllTripsActivity"/>
-        <activity
-            android:name=".Profile"
-            android:exported="false" />
-        <activity
-            android:name=".ResetPassword"
-            android:exported="false" />
-        <activity
-            android:name=".SignUp"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        <activity android:name=".CreatePostActivity"/>
-        <activity android:name=".CommentsActivity" />
-        <activity
-            android:name=".SignIn"
-            android:exported="true">
+
+        <!-- Meta-data for Firebase -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorPrimary" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- Activities -->
+        <activity android:name=".AllTripsActivity" android:exported="false" />
+        <activity android:name=".TravelPlanner" android:exported="false" />
+        <activity android:name=".Update_Details" android:exported="false" />
+        <activity android:name=".Profile" android:exported="false" />
+        <activity android:name=".ResetPassword" android:exported="false" />
+        <activity android:name=".SignUp" android:exported="false" />
+        <activity android:name=".CreatePostActivity" android:exported="false"/>
+        <activity android:name=".CommentsActivity" android:exported="false"/>
+        <activity android:name=".SignIn" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
+
 
 </manifest>

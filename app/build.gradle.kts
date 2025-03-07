@@ -71,7 +71,6 @@ dependencies {
     implementation ("me.zhanghai.android.materialratingbar:library:1.4.0")
     implementation (libs.androidx.room.ktx)
 
-    implementation ("com.google.android.gms:play-services-auth:20.6.0")
     implementation(libs.androidx.navigation.fragment.ktx)
 
     implementation ("com.cloudinary:cloudinary-android:3.0.2")
@@ -83,4 +82,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10")
+
+
+    implementation ("com.google.android.gms:play-services-auth:20.6.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
 }

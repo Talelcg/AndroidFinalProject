@@ -7,102 +7,124 @@
     android:layout_height="match_parent"
     tools:context=".CreatePostActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center_horizontal"
         android:background="@color/white">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_centerHorizontal="true"
             android:text="Create a New Post"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:id="@+id/textViewTitle"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:gravity="center" />
 
-        <EditText
-            android:id="@+id/editTextTitle"
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="55dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="59dp"
+            android:layout_toStartOf="@+id/textViewTitle"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="8dp"
+            android:src="@drawable/ic_back" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Title"
-            android:background="@drawable/edit_text_bg"
-            android:padding="12dp"
-            android:textSize="16sp"/>
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_below="@id/textViewTitle"
+            android:layout_marginTop="48dp">
 
-        <EditText
-            android:id="@+id/editTextPlace"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Location"
-            android:background="@drawable/edit_text_bg"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:layout_marginTop="8dp"/>
+            <EditText
+                android:id="@+id/editTextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_bg"
+                android:hint="Title"
+                android:padding="12dp"
+                android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/editTextDescription"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:hint="Description"
-            android:background="@drawable/edit_text_bg"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:minLines="5"
-            android:gravity="top"
-            android:layout_marginTop="8dp"/>
+            <EditText
+                android:id="@+id/editTextPlace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edit_text_bg"
+                android:hint="Location"
+                android:padding="12dp"
+                android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Rate this place"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="12dp"/>
+            <EditText
+                android:id="@+id/editTextDescription"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edit_text_bg"
+                android:gravity="top"
+                android:hint="Description"
+                android:minLines="5"
+                android:padding="12dp"
+                android:textSize="16sp" />
 
-        <me.zhanghai.android.materialratingbar.MaterialRatingBar
-            android:id="@+id/ratingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="1"
-            app:mrb_progressTint="@color/yellow"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Rate this place"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/buttonChoosePhoto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose Photo"
-            android:background="@drawable/button_bg"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:padding="12dp"
-            android:layout_marginTop="12dp"/>
+            <me.zhanghai.android.materialratingbar.MaterialRatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:numStars="5"
+                android:stepSize="1"
+                app:mrb_progressTint="@color/yellow" />
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="8dp"/>
+            <Button
+                android:id="@+id/buttonChoosePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/button_bg"
+                android:padding="12dp"
+                android:text="Choose Photo"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/buttonCreate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Create Post"
-            android:background="@drawable/button_bg"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:padding="12dp"
-            android:layout_marginTop="16dp"/>
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/darker_gray"
+                android:scaleType="centerCrop" />
+
+            <Button
+                android:id="@+id/buttonCreate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/button_bg"
+                android:padding="12dp"
+                android:text="Create Post"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

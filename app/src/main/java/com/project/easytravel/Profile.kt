@@ -64,9 +64,13 @@ class Profile : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    val intent = Intent(this, MainActivity::class.java)
+                    val intent = Intent(this, AllTripsActivity::class.java)
                     startActivity(intent)
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_create_post -> {
+                    val intent = Intent(this, CreatePostActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_profile -> {
                     drawerLayout.closeDrawer(GravityCompat.START)

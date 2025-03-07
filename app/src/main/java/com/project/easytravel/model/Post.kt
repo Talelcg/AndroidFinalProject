@@ -15,14 +15,12 @@ data class Post(
     val description: String = "",
     val imageUrl: String = "",
     val rating: Float = 0.0f,
-    // Corrected floating-point literal (must be `0.0f` instead of `0f`)
-//    val likes: String ="",
     val likes: MutableList<String> = mutableListOf(),
     val comments: List<Comment> = emptyList(),
-
     val userId: String = "",
-    val place: String = "" // Assuming you added a place field
+    val place: String = "" ,
+    val uploadDate: Long = System.currentTimeMillis() // Added upload date field
 ) {
     // Required no-argument constructor for Firebase
-    constructor() : this("", "", "", "", 0.0f, mutableListOf(), mutableListOf(), "", "")
+    constructor() : this("", "", "", "", 0.0f, mutableListOf(), mutableListOf(), "", "",System.currentTimeMillis())
 }

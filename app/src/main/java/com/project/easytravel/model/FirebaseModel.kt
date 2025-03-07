@@ -163,4 +163,14 @@ class FirebaseModel {
                 callback(emptyList()) // Return an empty list if fetch fails
             }
     }
+    fun getAllUsers(callback: (List<User>) -> Unit) {
+        val usersRef = FirebaseFirestore.getInstance().collection("users")
+        usersRef.get().addOnSuccessListener { result ->
+            val users = result.mapNotNull { it.toObject(User::class.java) }
+            callback(users)
+        }.addOnFailureListener {
+            callback(emptyList()) // במקרה של כשלון, מחזירים רשימה ריקה
+        }
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.project.easytravel
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -22,6 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class CommentsActivity : AppCompatActivity() {
+
+    private lateinit var progressBar: ProgressBar
     private lateinit var commentDao: CommentDao
     private lateinit var firebaseModel: FirebaseModel
     private lateinit var recyclerView: RecyclerView
@@ -40,6 +44,7 @@ class CommentsActivity : AppCompatActivity() {
         editTextComment = findViewById(R.id.editTextComment)
         buttonPostComment = findViewById(R.id.buttonPostComment)
         buttonBack = findViewById(R.id.buttonBack)
+        progressBar = findViewById(R.id.progressBar) // מקבלים את הספינר
 
         postId = intent.getStringExtra("postId") ?: return
 
@@ -48,7 +53,7 @@ class CommentsActivity : AppCompatActivity() {
         firebaseModel = FirebaseModel()
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        commentAdapter = CommentAdapter(mutableListOf())
+        commentAdapter = CommentAdapter(mutableListOf(), emptyMap())
         recyclerView.adapter = commentAdapter
 
         buttonBack.setOnClickListener { finish() }
@@ -79,18 +84,45 @@ class CommentsActivity : AppCompatActivity() {
     }
 
     private fun loadComments() {
-        postViewModel.getCommentsForPost(postId).observe(this) { roomComments ->
-            commentAdapter.updateComments(roomComments)
+        // הצגת הספינר כשהתגובות נטענות
+        progressBar.visibility = View.VISIBLE
 
-            // Fetch from Firebase to ensure latest comments
-            firebaseModel.getCommentsForPost(postId) { firebaseComments ->
+        postViewModel.getCommentsForPost(postId).observe(this) { roomComments ->
+
+            // שליפת כל המשתמשים מה-DB
+            lifecycleScope.launch(Dispatchers.IO) {
+                val usersList = commentDao.getAllUsers() // שליפת כל המשתמשים
+                val usersMap = usersList.associateBy { it.id } // יצירת מפה של userId -> User
+
+                withContext(Dispatchers.Main) {
+                    // עדכון התגובות עם המידע של המשתמשים
+                    commentAdapter.updateComments(roomComments, usersMap)
+                    progressBar.visibility = View.GONE // מסתירים את הספינר כשסיימנו
+                }
+            }
+
+            // שליפת משתמשים מפיירבייס
+            firebaseModel.getAllUsers { firebaseUsers ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    for (comment in firebaseComments) {
-                        commentDao.insertComment(comment) // Save new comments in Room
+                    for (user in firebaseUsers) {
+                        commentDao.insertUser(user) // שמירת המשתמשים ב- Room
+                    }
+
+                    // עדכון המידע על המשתמשים
+                    val updatedUsersList = commentDao.getAllUsers()
+                    val updatedUsersMap = updatedUsersList.associateBy { it.id }
+
+                    withContext(Dispatchers.Main) {
+                        commentAdapter.updateComments(roomComments, updatedUsersMap)
+                        progressBar.visibility = View.GONE // מסתירים את הספינר כשסיימנו
                     }
                 }
             }
         }
-    }
+
+
+}
+
+
 
 }
