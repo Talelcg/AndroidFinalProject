@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:gravity="center">
 
         <!-- Post Image -->
         <ImageView
@@ -23,7 +24,54 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_placeholder" />
 
-        <!-- Title -->
+        <!-- Post Author and Rating Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start|center_vertical"
+            android:layout_marginTop="8dp">
+
+            <!-- Profile Image (Circular) -->
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/profile"
+                android:contentDescription="Profile Image"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/profile"/>
+
+            <!-- Post Author Name -->
+            <TextView
+                android:id="@+id/postAuthor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                tools:text="John Doe"
+                android:gravity="center_vertical" />
+
+            <!-- Spacer -->
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="wrap_content" />
+
+            <!-- Post Rating -->
+            <me.zhanghai.android.materialratingbar.MaterialRatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1"
+                app:mrb_progressTint="@color/yellow"
+                android:layout_gravity="center_vertical"
+                android:rating="4" />
+        </LinearLayout>
+
+        <!-- Post Title Section -->
         <TextView
             android:id="@+id/tripTitle"
             android:layout_width="wrap_content"
@@ -31,10 +79,22 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/black"
+            tools:text="Amazing Trip"
             android:layout_marginTop="8dp"
-            tools:text="Amazing Trip" />
+            android:gravity="center" />
 
-        <!-- Description -->
+        <!-- Post Location Section -->
+        <TextView
+            android:id="@+id/postLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            tools:text="Mountains of Israel"
+            android:layout_marginTop="4dp"
+            android:gravity="center" />
+
+        <!-- Post Description -->
         <TextView
             android:id="@+id/tripDescription"
             android:layout_width="wrap_content"
@@ -42,44 +102,56 @@
             android:textSize="14sp"
             android:textColor="@color/black"
             android:layout_marginTop="4dp"
-            tools:text="Beautiful places to visit" />
+            tools:text="Beautiful places to visit"
+            android:gravity="center" />
 
         <!-- Likes & Comments Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+            android:gravity="center"
+        android:layout_marginTop="8dp">
 
-            <!-- Like Button -->
-            <ImageButton
-                android:id="@+id/buttonLike"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_like"
-                android:contentDescription="Like" />
 
-            <!-- Likes Counter -->
-            <TextView
-                android:id="@+id/postLikes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/black"
-                android:layout_marginStart="8dp"
-                tools:text="12 Likes" />
+        <ImageButton
+            android:id="@+id/buttonLike"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Like"
+            android:src="@drawable/ic_like" />
 
-            <!-- Comment Button -->
-            <ImageButton
-                android:id="@+id/buttonComment"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_comment"
-                android:contentDescription="Comment"
-                android:layout_marginStart="16dp"/>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/postLikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="8dp"
+            tools:text="12 Likes"
+            android:gravity="center" />
+
+        <!-- Comment Button -->
+        <ImageButton
+            android:id="@+id/buttonComment"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_comment"
+            android:contentDescription="Comment"
+            android:layout_marginStart="16dp"/>
+
+        <!-- Comments Counter -->
+        <TextView
+            android:id="@+id/postComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="8dp"
+            tools:text="12 comments"
+            android:gravity="center" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</LinearLayout>
+    </androidx.cardview.widget.CardView>

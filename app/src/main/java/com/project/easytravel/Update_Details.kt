@@ -12,14 +12,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.idz.colman24class2.model.CloudinaryModel
 import com.project.easytravel.model.FirebaseModel
 import com.project.easytravel.model.User
-import com.project.easytravel.model.dao.AppLocalDbRepository
-import com.project.easytravel.model.dao.UserDao
+import com.project.easytravel.model.dao.AppLocalDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +26,7 @@ class Update_Details : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestoreModel: FirebaseModel
-    private lateinit var userDao: UserDao
+    private val userDao by lazy { AppLocalDb.database.userDao() }
     private var cloudinaryModel: CloudinaryModel? = null
 
     private lateinit var editTextName: EditText
@@ -53,9 +51,6 @@ class Update_Details : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update_details)
 
-        val database = Room.databaseBuilder(applicationContext, AppLocalDbRepository::class.java, "user-db").build()
-        userDao = database.userDao()
-
         firebaseAuth = FirebaseAuth.getInstance()
         firestoreModel = FirebaseModel()
 
@@ -64,17 +59,11 @@ class Update_Details : AppCompatActivity() {
         buttonSave = findViewById(R.id.buttonSave)
         imageViewProfile = findViewById(R.id.imageView2)
         val buttonChangePassword = findViewById<Button>(R.id.buttonChangePassword)
-        buttonChangePassword.setOnClickListener {
-            onUpdatePasswordClick()
-        }
+        buttonChangePassword.setOnClickListener { onUpdatePasswordClick() }
         val backButton = findViewById<ImageButton>(R.id.back_button)
-        backButton.setOnClickListener {
-            finish()
-        }
+        backButton.setOnClickListener { finish() }
 
-        imageViewProfile.setOnClickListener {
-            pickImage.launch("image/*")
-        }
+        imageViewProfile.setOnClickListener { pickImage.launch("image/*") }
 
         fetchUserDetails()
 
@@ -93,12 +82,9 @@ class Update_Details : AppCompatActivity() {
             val userId = currentUser.uid
 
             lifecycleScope.launch {
-                val userFromRoom = withContext(Dispatchers.IO) {
-                    userDao.getUserById(userId)
-                }
+                val userFromRoom = withContext(Dispatchers.IO) { userDao.getUserById(userId) }
 
-                if (userFromRoom != null&&userFromRoom.profileimage!="") {
-                    // If user data found in local DB (Room)
+                if (userFromRoom != null && userFromRoom.profileimage.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
                         editTextName.setText(userFromRoom.name)
                         editTextBio.setText(userFromRoom.bio)
@@ -109,14 +95,9 @@ class Update_Details : AppCompatActivity() {
                             .into(imageViewProfile)
                     }
                 } else {
-                   firestoreModel.getUserById(userId) { user ->
+                    firestoreModel.getUserById(userId) { user ->
                         if (user != null) {
-                            lifecycleScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    userDao.insertUser(user)
-                                }
-                            }
-
+                            lifecycleScope.launch { withContext(Dispatchers.IO) { userDao.insertUser(user) } }
                             runOnUiThread {
                                 editTextName.setText(user.name)
                                 editTextBio.setText(user.bio)
@@ -144,18 +125,10 @@ class Update_Details : AppCompatActivity() {
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
             val userId = currentUser.uid
-            val updatedUser = User(
-                id = userId,
-                name = updatedName,
-                bio = updatedBio,
-                email = "",
-                profileimage = imageUri?.toString() ?: ""
-            )
+            val updatedUser = User(id = userId, name = updatedName, bio = updatedBio, email = "", profileimage = imageUri?.toString() ?: "")
 
             lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    userDao.updateUser(updatedUser)
-                }
+                withContext(Dispatchers.IO) { userDao.updateUser(updatedUser) }
 
                 firestoreModel.updateUserDetails(userId, updatedName, updatedBio) { success ->
                     if (success) {
@@ -176,28 +149,23 @@ class Update_Details : AppCompatActivity() {
     private fun uploadImageToCloudinary() {
         imageUri?.let { uri ->
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            if (cloudinaryModel == null) {
-                cloudinaryModel = CloudinaryModel()
-            }
-            cloudinaryModel?.uploadBitmap(
-                bitmap = bitmap,
-                onSuccess = { imageUrl ->
-                    val currentUser = firebaseAuth.currentUser
-                    if (currentUser != null) {
-                        firestoreModel.updateUserProfileImage(currentUser.uid, imageUrl) { success ->
-                            if (success) {
-                                Toast.makeText(this, "Profile image updated.", Toast.LENGTH_SHORT).show()
-                                navigateToProfile()
-                            } else {
-                                Toast.makeText(this, "Failed to update profile image.", Toast.LENGTH_SHORT).show()
-                            }
+            if (cloudinaryModel == null) cloudinaryModel = CloudinaryModel()
+
+            cloudinaryModel?.uploadBitmap(bitmap, onSuccess = { imageUrl ->
+                val currentUser = firebaseAuth.currentUser
+                if (currentUser != null) {
+                    firestoreModel.updateUserProfileImage(currentUser.uid, imageUrl) { success ->
+                        if (success) {
+                            Toast.makeText(this, "Profile image updated.", Toast.LENGTH_SHORT).show()
+                            navigateToProfile()
+                        } else {
+                            Toast.makeText(this, "Failed to update profile image.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                },
-                onError = { error ->
-                    Toast.makeText(this, "Error uploading image: $error", Toast.LENGTH_SHORT).show()
                 }
-            )
+            }, onError = { error ->
+                Toast.makeText(this, "Error uploading image: $error", Toast.LENGTH_SHORT).show()
+            })
         }
     }
 
@@ -214,22 +182,14 @@ class Update_Details : AppCompatActivity() {
 
     private fun onUpdatePasswordClick() {
         val currentUser = firebaseAuth.currentUser
-        if (currentUser != null) {
-            val email = currentUser.email
-
-            if (email != null) {
-                firebaseAuth.sendPasswordResetEmail(email)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "Password reset email sent.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(this, "Failed to send password reset email.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "No email associated with this account.", Toast.LENGTH_SHORT).show()
+        currentUser?.email?.let { email ->
+            firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Password reset email sent.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to send password reset email.", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
+        } ?: Toast.makeText(this, "No email associated with this account.", Toast.LENGTH_SHORT).show()
     }
-
 }

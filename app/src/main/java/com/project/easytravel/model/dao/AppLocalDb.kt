@@ -8,7 +8,7 @@ import com.project.easytravel.model.Comment
 import com.project.easytravel.model.Post
 import com.project.easytravel.model.User
 
-@Database(entities = [User::class, Post::class,Comment::class], version = 7)
+@Database(entities = [User::class, Post::class, Comment::class], version = 8)
 abstract class AppLocalDbRepository: RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun postDao(): PostDao
@@ -18,6 +18,8 @@ object AppLocalDb {
     val database: AppLocalDbRepository by lazy {
 
         val context = MyApplication.Globals.context ?: throw IllegalStateException("Application context is missing")
+
+
         Room.databaseBuilder(
             context = context,
             klass = AppLocalDbRepository::class.java,

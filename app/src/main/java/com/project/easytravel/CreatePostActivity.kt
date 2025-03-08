@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -28,7 +29,6 @@ import com.project.easytravel.model.FirebaseModel
 import com.idz.colman24class2.model.CloudinaryModel
 import com.project.easytravel.model.AppDatabase
 import com.project.easytravel.model.dao.PostDao
-import com.project.easytravel.model.dao.AppLocalDb.database
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,6 +81,14 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private fun setupListeners() {
         choosePhotoButton.setOnClickListener { showImagePickerDialog() }
         createButton.setOnClickListener { createPost() }
+
+        // הוספת מאזין לכפתור ה-back
+        val buttonBack = findViewById<ImageButton>(R.id.buttonBack)
+        buttonBack.setOnClickListener {
+            onBackPressed()  // פעולה שמחזירה אותך למסך הקודם
+        }
+
+
     }
 
     private fun setupNavigationBar() {
@@ -143,6 +151,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
     }
+
 
     private fun uploadBitmapToCloudinary(postId: String ,title: String, place: String, description: String, rating: Float) {
         cloudinaryModel.uploadBitmap(capturedBitmap!!, onSuccess = { imageUrl ->

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 import com.project.easytravel.model.Comment
+import com.project.easytravel.model.User
 
 @Dao
 interface CommentDao {
@@ -19,4 +20,11 @@ interface CommentDao {
 
     @Query("DELETE FROM comments WHERE postId = :postId")
     suspend fun deleteAllCommentsForPost(postId: String)
-}
+
+   @Query("SELECT * FROM User")
+   fun getAllUsers(): List<User>
+
+   @Insert(onConflict = OnConflictStrategy.REPLACE)
+   fun insertUser(user: User)
+    }
+

@@ -9,7 +9,7 @@ import com.project.easytravel.model.dao.CommentDao
 import com.project.easytravel.model.dao.PostDao
 import com.project.easytravel.model.dao.UserDao
 
-@Database(entities = [User::class,Post::class,Comment::class], version = 7, exportSchema = false)
+@Database(entities = [User::class, Post::class, Comment::class], version = 8, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
@@ -35,4 +35,5 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
     }
+
 }
