@@ -149,25 +149,58 @@ class Update_Details : AppCompatActivity() {
     private fun uploadImageToCloudinary() {
         imageUri?.let { uri ->
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            if (cloudinaryModel == null) cloudinaryModel = CloudinaryModel()
 
-            cloudinaryModel?.uploadBitmap(bitmap, onSuccess = { imageUrl ->
-                val currentUser = firebaseAuth.currentUser
-                if (currentUser != null) {
-                    firestoreModel.updateUserProfileImage(currentUser.uid, imageUrl) { success ->
-                        if (success) {
-                            Toast.makeText(this, "Profile image updated.", Toast.LENGTH_SHORT).show()
-                            navigateToProfile()
-                        } else {
-                            Toast.makeText(this, "Failed to update profile image.", Toast.LENGTH_SHORT).show()
+            // בדיקה אם Cloudinary מאותחל
+            if (cloudinaryModel == null) {
+                cloudinaryModel = CloudinaryModel()
+                CloudinaryModel.initCloudinary(this)
+            }
+
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    cloudinaryModel?.uploadBitmap(bitmap, onSuccess = { imageUrl ->
+                        updateProfileImageInFirebase(imageUrl)
+                    }, onError = { error ->
+                        runOnUiThread {
+                            Toast.makeText(this@Update_Details, "Error uploading image: $error", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    })
                 }
-            }, onError = { error ->
-                Toast.makeText(this, "Error uploading image: $error", Toast.LENGTH_SHORT).show()
-            })
+            }
         }
     }
+
+    private fun updateProfileImageInFirebase(imageUrl: String) {
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+
+            firestoreModel.updateUserProfileImage(userId, imageUrl) { success ->
+                if (success) {
+                    // עדכון במסד הנתונים המקומי (Room)
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            val user = userDao.getUserById(userId)
+
+                                user.profileimage = imageUrl
+                                userDao.updateUser(user)
+
+                        }
+                    }
+
+                    runOnUiThread {
+                        Toast.makeText(this@Update_Details, "Profile image updated.", Toast.LENGTH_SHORT).show()
+                        navigateToProfile()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@Update_Details, "Failed to update profile image.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun navigateToProfile() {
         val intent = Intent(this@Update_Details, Profile::class.java)

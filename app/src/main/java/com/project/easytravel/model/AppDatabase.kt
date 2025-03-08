@@ -29,11 +29,14 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // מוחק את כל הנתונים במקרה של שינוי מבנה
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
+
     }
 
 }

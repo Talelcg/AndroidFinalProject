@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.bom)
+    implementation(libs.androidx.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,10 +79,11 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
-
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10")
+    implementation ("com.google.firebase:firebase-auth:21.0.5")
 
 
     implementation ("com.google.android.gms:play-services-auth:20.6.1")

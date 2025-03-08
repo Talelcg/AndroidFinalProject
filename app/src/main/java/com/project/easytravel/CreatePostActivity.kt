@@ -82,7 +82,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
         choosePhotoButton.setOnClickListener { showImagePickerDialog() }
         createButton.setOnClickListener { createPost() }
 
-        // הוספת מאזין לכפתור ה-back
+
         val buttonBack = findViewById<ImageButton>(R.id.buttonBack)
         buttonBack.setOnClickListener {
             onBackPressed()  // פעולה שמחזירה אותך למסך הקודם
@@ -221,6 +221,9 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
                 firebaseModel.createPost(post) { success ->
                     if (success) {
                         Toast.makeText(this@CreatePostActivity, "Post Created!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@CreatePostActivity, AllTripsActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        startActivity(intent)
                         finish()
                     } else {
                         Toast.makeText(this@CreatePostActivity, "Error creating post!", Toast.LENGTH_SHORT).show()

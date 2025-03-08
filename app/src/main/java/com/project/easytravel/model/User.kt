@@ -9,7 +9,7 @@ data class User (
     val email: String = "",
     val name: String = "",
     val bio: String = "",
-    val profileimage: String = ""
+    var profileimage: String = ""
 ) {
     // 🔹 קונסטרקטור ריק נחוץ ל-Firebase
     constructor() : this("", "", "", "", "")
