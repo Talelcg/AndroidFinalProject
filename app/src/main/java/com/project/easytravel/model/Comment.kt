@@ -12,4 +12,6 @@ data class Comment(
     @PropertyName("userId") val userId: String,  // ID of the user who made the comment
     @PropertyName("text") val text: String,      // Comment text
     @PropertyName("timestamp") val timestamp: Long = System.currentTimeMillis() // Timestamp for sorting
-)
+){
+    constructor() : this("", "", "", "", 0) // בנאי ריק
+}

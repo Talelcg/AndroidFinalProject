@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.bom)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -88,5 +90,6 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-auth:20.6.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
 
 }

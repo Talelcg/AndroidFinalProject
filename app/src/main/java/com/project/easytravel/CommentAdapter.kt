@@ -51,7 +51,7 @@ class CommentAdapter(
 
     override fun getItemCount(): Int = comments.size
 
-    fun updateComments(newComments: List<Comment>, newUsersMap: Map<String, User>) {
+    fun updateComments(newComments:  MutableList<Comment>, newUsersMap: Map<String, User>) {
         comments.clear()
         comments.addAll(newComments)
         usersMap = newUsersMap

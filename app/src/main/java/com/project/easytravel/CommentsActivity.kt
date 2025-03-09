@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -62,8 +63,8 @@ class CommentsActivity : AppCompatActivity() {
         buttonPostComment.setOnClickListener { postComment() }
         buttonBack.setOnClickListener {
             val intent = Intent(this@CommentsActivity, AllTripsActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)  // אם אתה רוצה לסגור את הפעילויות הקודמות
-            intent.putExtra("refreshPosts", true)  // שליחה של פרמטר שירמז ל-AllTripsActivity לרענן את הפוסטים
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.putExtra("refreshPosts", true)
             startActivity(intent)
             finish()
         }
@@ -90,47 +91,38 @@ class CommentsActivity : AppCompatActivity() {
             Toast.makeText(this, "Comment cannot be empty!", Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun loadComments() {
-        // הצגת הספינר כשהתגובות נטענות
+        Log.d("CommentsActivity", "Loading comments...")
         progressBar.visibility = View.VISIBLE
 
-        postViewModel.getCommentsForPost(postId).observe(this) { roomComments ->
+        // שליפת התגובות מרום (מקבלות עדיפות נמוכה יותר)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val roomComments = commentDao.getCommentsForPostSuspend(postId)
+            val usersMap = commentDao.getAllUsers().associateBy { it.id }
 
-            // שליפת כל המשתמשים מה-DB
-            lifecycleScope.launch(Dispatchers.IO) {
-                val usersList = commentDao.getAllUsers() // שליפת כל המשתמשים
-                val usersMap = usersList.associateBy { it.id } // יצירת מפה של userId -> User
-
-                withContext(Dispatchers.Main) {
-                    // עדכון התגובות עם המידע של המשתמשים
-                    commentAdapter.updateComments(roomComments, usersMap)
-                    progressBar.visibility = View.GONE // מסתירים את הספינר כשסיימנו
-                }
-            }
-
-            // שליפת משתמשים מפיירבייס
-            firebaseModel.getAllUsers { firebaseUsers ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    for (user in firebaseUsers) {
-                        commentDao.insertUser(user) // שמירת המשתמשים ב- Room
-                    }
-
-                    // עדכון המידע על המשתמשים
-                    val updatedUsersList = commentDao.getAllUsers()
-                    val updatedUsersMap = updatedUsersList.associateBy { it.id }
-
-                    withContext(Dispatchers.Main) {
-                        commentAdapter.updateComments(roomComments, updatedUsersMap)
-                        progressBar.visibility = View.GONE // מסתירים את הספינר כשסיימנו
-                    }
-                }
+            withContext(Dispatchers.Main) {
+                commentAdapter.updateComments(roomComments.toMutableList(), usersMap)
             }
         }
 
+        // מאזין לשינויים ב-Firebase כדי לעדכן את ה-UI בזמן אמת
+        firebaseModel.listenForComments(postId) { firebaseComments ->
+            Log.d("CommentsActivity", "Received ${firebaseComments.size} comments from Firebase")
 
-}
+            lifecycleScope.launch(Dispatchers.IO) {
+                for (comment in firebaseComments) {
+                    commentDao.insertComment(comment) // הכנס ל-Room כדי לשמור עקביות מקומית
+                }
 
+                val updatedComments = commentDao.getCommentsForPostSuspend(postId)
+                val updatedUsers = commentDao.getAllUsers().associateBy { it.id }
 
+                withContext(Dispatchers.Main) {
+                    commentAdapter.updateComments(updatedComments.toMutableList(), updatedUsers)
+                    progressBar.visibility = View.GONE
+                }
+            }
+        }
+    }
 
 }
