@@ -2,6 +2,7 @@ package com.project.easytravel.model
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.project.easytravel.base.Constants
@@ -136,7 +137,21 @@ class FirebaseModel {
                 }
             }
     }
-    fun addComment(comment: Comment) {
+
+    fun addComment(comment: Comment, postId: String) {
+        val commentId = comment.id
+
+        // עדכון ה-comments של הפוסט
+        val postRef = database.collection("posts").document(postId)
+        postRef.update("comments", FieldValue.arrayUnion(commentId))
+            .addOnSuccessListener {
+                Log.d("FirebaseModel", "Comment ID added successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseModel", "Error adding comment ID: ${e.message}")
+            }
+
+        // הוספת התגובה גם לקולקציה של תגובות
         database.collection("comments")
             .document(comment.id)
             .set(comment)
@@ -147,6 +162,9 @@ class FirebaseModel {
                 Log.e("FirebaseModel", "Error adding comment: ${e.message}")
             }
     }
+
+
+
 
     // Get comments for a specific post
     fun getCommentsForPost(postId: String, callback: (List<Comment>) -> Unit) {

@@ -12,8 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +23,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.project.easytravel.base.PostViewModel
 import com.project.easytravel.model.Post
 import com.project.easytravel.PostAdapter
+import kotlinx.coroutines.launch
+
 class AllTripsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -28,7 +32,13 @@ class AllTripsActivity : AppCompatActivity() {
     private lateinit var postViewModel: PostViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var firebaseAuth: FirebaseAuth
+    override fun onResume() {
+        super.onResume()
+        swipeRefreshLayout.isRefreshing = true
+        postViewModel.loadPosts()  // טוען את הפוסטים מחדש
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,15 +50,20 @@ class AllTripsActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewPosts)
         progressBar = findViewById(R.id.progressBar)
         drawerLayout = findViewById(R.id.drawer_layout)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
 
         // Set up RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         postViewModel = ViewModelProvider(this).get(PostViewModel::class.java)
 
+        // Observe posts data and update UI
         postViewModel.allPosts.observe(this) { posts ->
             progressBar.visibility = View.GONE
             postAdapter.updatePosts(posts)
+
+            // Close the SwipeRefreshLayout once posts are loaded
+            swipeRefreshLayout.isRefreshing = false
         }
 
         postAdapter = PostAdapter(mutableListOf(), postViewModel)
@@ -56,6 +71,12 @@ class AllTripsActivity : AppCompatActivity() {
 
         progressBar.visibility = View.VISIBLE
         postViewModel.loadPosts()
+
+        // Set up SwipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener {
+            // Reload the posts when the user swipes to refresh
+            postViewModel.loadPosts()
+        }
 
         // Set up DrawerLayout and Toolbar
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
@@ -74,6 +95,7 @@ class AllTripsActivity : AppCompatActivity() {
         // Set up NavigationView
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem ->
+            // Handle navigation item clicks
             when (menuItem.itemId) {
                 R.id.nav_home -> {
                     val intent = Intent(this, AllTripsActivity::class.java)
@@ -105,6 +127,10 @@ class AllTripsActivity : AppCompatActivity() {
         updateUserDetails(navigationView)
     }
 
+    fun refreshPosts() {
+            refreshPosts()
+
+    }
     private fun updateUserDetails(navigationView: NavigationView) {
         val headerView = navigationView.getHeaderView(0)
         val userNameTextView = headerView.findViewById<TextView>(R.id.user_name)

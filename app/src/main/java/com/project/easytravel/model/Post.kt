@@ -16,7 +16,7 @@ data class Post(
     val imageUrl: String = "",
     val rating: Float = 0.0f,
     val likes: MutableList<String> = mutableListOf(),
-    val comments: List<Comment> = emptyList(),
+    val comments: MutableList<String> = mutableListOf(),
     val userId: String = "",
     val place: String = "" ,
     val uploadDate: Long = System.currentTimeMillis() // Added upload date field

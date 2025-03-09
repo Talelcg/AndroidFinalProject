@@ -11,27 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
-        <!-- TextView for the user's name (aligned to the left) -->
-        <TextView
-            android:id="@+id/userName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:text="User Name"
-            android:paddingEnd="8dp" />
+        <!-- Profile Image (Circular) -->
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/profile"
+            android:layout_marginEnd="8dp"
+            app:circleCrop="true"/>
 
-        <!-- TextView for the comment text (aligned to the right) -->
-        <TextView
-            android:id="@+id/commentText"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:text="This is a comment" />
+            android:orientation="vertical">
+
+            <!-- User Name -->
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:text="User Name"
+                android:paddingBottom="4dp"/>
+
+            <!-- Comment Text -->
+            <TextView
+                android:id="@+id/commentText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:text="This is a comment" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

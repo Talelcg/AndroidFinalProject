@@ -28,4 +28,5 @@ object AppLocalDb {
             .fallbackToDestructiveMigration()
             .build()
     }
+
 }

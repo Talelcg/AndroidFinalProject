@@ -1,20 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="6dp"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
     android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="16dp"
         android:gravity="center">
+
+        <!-- Button Update/Delete -->
+        <ImageButton
+            android:id="@+id/buttonUpdateDelete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end|top"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Update/Delete Post"
+            android:src="@drawable/edit_details" /> <!-- Initially hidden -->
+
+        <!-- Date and Location -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- Location -->
+            <TextView
+                android:id="@+id/postLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:text="Mountains of Israel"
+                android:fontFamily="sans-serif-medium"/>
+
+            <!-- Upload Date -->
+            <TextView
+                android:id="@+id/postUploadDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textStyle="bold"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:text="12/03/2025"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
 
         <!-- Post Image -->
         <ImageView
@@ -22,7 +66,8 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_placeholder" />
+            android:src="@drawable/ic_placeholder"
+            android:layout_marginTop="8dp" />
 
         <!-- Post Author and Rating Section -->
         <LinearLayout
@@ -35,8 +80,8 @@
             <!-- Profile Image (Circular) -->
             <ImageView
                 android:id="@+id/profileImage"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/profile"
                 android:contentDescription="Profile Image"
@@ -49,50 +94,43 @@
                 android:id="@+id/postAuthor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textColor="@color/black"
-                tools:text="John Doe"
-                android:gravity="center_vertical" />
+                android:text="John Doe"
+                android:gravity="center_vertical"
+                android:fontFamily="sans-serif-medium"/>
 
             <!-- Spacer -->
             <Space
                 android:layout_width="16dp"
                 android:layout_height="wrap_content" />
-
-            <!-- Post Rating -->
-            <me.zhanghai.android.materialratingbar.MaterialRatingBar
-                android:id="@+id/ratingBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:numStars="5"
-                android:stepSize="1"
-                app:mrb_progressTint="@color/yellow"
-                android:layout_gravity="center_vertical"
-                android:rating="4" />
         </LinearLayout>
+
+        <!-- Post Rating (Stars under the username) -->
+        <me.zhanghai.android.materialratingbar.MaterialRatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="227dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:numStars="5"
+            android:rating="4"
+            android:stepSize="1"
+
+            app:mrb_progressTint="@color/yellow" />
 
         <!-- Post Title Section -->
         <TextView
             android:id="@+id/tripTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            tools:text="Amazing Trip"
-            android:layout_marginTop="8dp"
-            android:gravity="center" />
-
-        <!-- Post Location Section -->
-        <TextView
-            android:id="@+id/postLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            tools:text="Mountains of Israel"
-            android:layout_marginTop="4dp"
-            android:gravity="center" />
+            android:text="Amazing Trip"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium" />
 
         <!-- Post Description -->
         <TextView
@@ -101,9 +139,10 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@color/black"
-            android:layout_marginTop="4dp"
-            tools:text="Beautiful places to visit"
-            android:gravity="center" />
+            android:layout_marginTop="8dp"
+            android:text="Beautiful places to visit"
+            android:gravity="center"
+            android:fontFamily="sans-serif" />
 
         <!-- Likes & Comments Section -->
         <LinearLayout
@@ -111,47 +150,48 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-        android:layout_marginTop="8dp">
+            android:layout_marginTop="16dp">
 
+            <ImageButton
+                android:id="@+id/buttonLike"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Like"
+                android:src="@drawable/ic_like" />
 
-        <ImageButton
-            android:id="@+id/buttonLike"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Like"
-            android:src="@drawable/ic_like" />
+            <TextView
+                android:id="@+id/postLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="8dp"
+                android:text="12 Likes"
+                android:gravity="center"
+                android:fontFamily="sans-serif" />
 
-        <TextView
-            android:id="@+id/postLikes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_marginStart="8dp"
-            tools:text="12 Likes"
-            android:gravity="center" />
+            <!-- Comment Button -->
+            <ImageButton
+                android:id="@+id/buttonComment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_comment"
+                android:contentDescription="Comment"
+                android:layout_marginStart="16dp"/>
 
-        <!-- Comment Button -->
-        <ImageButton
-            android:id="@+id/buttonComment"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_comment"
-            android:contentDescription="Comment"
-            android:layout_marginStart="16dp"/>
-
-        <!-- Comments Counter -->
-        <TextView
-            android:id="@+id/postComments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_marginStart="8dp"
-            tools:text="12 comments"
-            android:gravity="center" />
+            <!-- Comments Counter -->
+            <TextView
+                android:id="@+id/postComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="8dp"
+                android:text="12 comments"
+                android:gravity="center"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>
