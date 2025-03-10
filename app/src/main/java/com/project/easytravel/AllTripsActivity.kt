@@ -34,11 +34,7 @@ class AllTripsActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var firebaseAuth: FirebaseAuth
-    override fun onResume() {
-        super.onResume()
-        swipeRefreshLayout.isRefreshing = true
-        postViewModel.loadPosts()  // טוען את הפוסטים מחדש
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,8 +124,7 @@ class AllTripsActivity : AppCompatActivity() {
     }
 
     fun refreshPosts() {
-            refreshPosts()
-
+        postViewModel.loadPosts()
     }
     private fun updateUserDetails(navigationView: NavigationView) {
         val headerView = navigationView.getHeaderView(0)

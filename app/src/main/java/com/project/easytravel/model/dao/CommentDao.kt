@@ -15,6 +15,13 @@ interface CommentDao {
     @Query("SELECT * FROM comments WHERE postId = :postId ORDER BY timestamp ASC")
     fun getCommentsForPost(postId: String): LiveData<List<Comment>>
 
+    @Query("SELECT * FROM comments WHERE id = :commentId LIMIT 1")
+    suspend fun getCommentById(commentId: String): Comment?
+
+    @Query("SELECT * FROM comments WHERE postId = :postId ORDER BY timestamp ASC")
+    suspend fun getCommentsForPostSuspend(postId: String): List<Comment>
+
+
     @Delete
     suspend fun deleteComment(comment: Comment)
 

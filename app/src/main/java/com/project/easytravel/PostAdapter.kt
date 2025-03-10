@@ -116,30 +116,52 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
                     .setTitle("Choose Action")
                     .setMessage("Would you like to update or delete this post?")
                     .setPositiveButton("Update") { dialog, which ->
-                        // Start the CreatePostActivity for editing the post (update)
-                        val intent = Intent(context, CreatePostActivity::class.java)
-                        intent.putExtra("postId", post.id)
+                        val intent = Intent(context, Update_Post::class.java)
+                        intent.putExtra("postId", post.id) // Pass post ID
+                        intent.putExtra("postTitle", post.title)
+                        intent.putExtra("postLocation", post.place)
+                        intent.putExtra("postDescription", post.description)
+                        intent.putExtra("postImageUrl", post.imageUrl)
+                        intent.putExtra("postRating", post.rating)
                         context.startActivity(intent)
                     }
                     .setNegativeButton("Delete") { dialog, which ->
-                        // Confirm post deletion
                         val deleteDialog = android.app.AlertDialog.Builder(context)
                             .setTitle("Delete Post")
                             .setMessage("Are you sure you want to delete this post?")
                             .setPositiveButton("Yes") { deleteDialog, _ ->
-                                // Delete the post from Firestore
-                                firestore.collection("posts").document(post.id)
-                                    .delete()
-                                    .addOnSuccessListener {
-                                        // Optionally notify the adapter to remove the post from the list
-                                        val position = adapterPosition
-                                        if (position != RecyclerView.NO_POSITION) {
-                                            postList.removeAt(position)
-                                            notifyItemRemoved(position)
+                                val postRef = firestore.collection("posts").document(post.id)
+                                val commentsRef = firestore.collection("comments").whereEqualTo("postId", post.id)
+
+                                // מחיקת כל התגובות הקשורות לפוסט
+                                commentsRef.get()
+                                    .addOnSuccessListener { querySnapshot ->
+                                        val batch = firestore.batch()
+                                        for (document in querySnapshot.documents) {
+                                            batch.delete(document.reference)
                                         }
+                                        batch.commit()
+                                            .addOnSuccessListener {
+                                                Log.d("PostAdapter", "Comments deleted successfully")
+                                                // לאחר מחיקת התגובות, מוחקים את הפוסט עצמו
+                                                postRef.delete()
+                                                    .addOnSuccessListener {
+                                                        val position = adapterPosition
+                                                        if (position != RecyclerView.NO_POSITION) {
+                                                            postList.removeAt(position)
+                                                            notifyItemRemoved(position)
+                                                        }
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        Log.e("PostAdapter", "Error deleting post: $e")
+                                                    }
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("PostAdapter", "Error deleting comments: $e")
+                                            }
                                     }
                                     .addOnFailureListener { e ->
-                                        Log.e("PostAdapter", "Error deleting post: $e")
+                                        Log.e("PostAdapter", "Error getting comments: $e")
                                     }
                                 deleteDialog.dismiss()
                             }
@@ -149,6 +171,7 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
                     .setCancelable(true)
                     .show()
             }
+
         }
     }
 

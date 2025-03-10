@@ -190,5 +190,27 @@ class FirebaseModel {
             callback(emptyList()) // במקרה של כשלון, מחזירים רשימה ריקה
         }
     }
+    fun listenForComments(postId: String, onCommentsReceived: (List<Comment>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val commentsRef = db.collection("comments")
+            .whereEqualTo("postId", postId)
+            .orderBy("timestamp") // ודא שלשדה timestamp יש ערך!
+
+        commentsRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("FirebaseModel", "Error listening for comments: ${error.message}")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val commentsList = snapshot.documents.mapNotNull { it.toObject(Comment::class.java) }
+                onCommentsReceived(commentsList)
+            } else {
+                onCommentsReceived(emptyList())
+            }
+        }
+    }
+
+
 
 }
