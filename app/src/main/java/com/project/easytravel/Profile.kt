@@ -17,10 +17,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.project.easytravel.base.PostViewModel
+import com.project.easytravel.model.Post
+import com.project.easytravel.PostAdapter
 
 class Profile : AppCompatActivity() {
 
@@ -28,15 +34,26 @@ class Profile : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var progressBar: ProgressBar
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var postAdapter: PostAdapter
+    private lateinit var postViewModel: PostViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile)
+
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
+
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+        postViewModel = ViewModelProvider(this).get(PostViewModel::class.java)
+
+        recyclerView = findViewById(R.id.recycler_view_posts)
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        postAdapter = PostAdapter(mutableListOf(), postViewModel)
+        recyclerView.adapter = postAdapter
 
         drawerLayout = findViewById(R.id.main)
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
@@ -51,11 +68,8 @@ class Profile : AppCompatActivity() {
         }
 
         val toggle = ActionBarDrawerToggle(
-            this,
-            drawerLayout,
-            toolbar,
-            R.string.drawer_open,
-            R.string.drawer_close
+            this, drawerLayout, toolbar,
+            R.string.drawer_open, R.string.drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
@@ -64,20 +78,17 @@ class Profile : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    val intent = Intent(this, AllTripsActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, AllTripsActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_create_post -> {
-                    val intent = Intent(this, CreatePostActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, CreatePostActivity::class.java))
                 }
                 R.id.nav_profile -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_travelplanner -> {
-                    val intent = Intent(this, TravelPlanner::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, TravelPlanner::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_logout -> {
@@ -91,6 +102,17 @@ class Profile : AppCompatActivity() {
             true
         }
 
+        loadUserDetails(navigationView)
+        loadUserPosts()
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    private fun loadUserDetails(navigationView: NavigationView) {
         val headerView = navigationView.getHeaderView(0)
         val userNameTextView = headerView.findViewById<TextView>(R.id.user_name)
         val userProfileImage = headerView.findViewById<ImageView>(R.id.user_profile_image)
@@ -104,61 +126,63 @@ class Profile : AppCompatActivity() {
         if (currentUser != null) {
             val userId = currentUser.uid
             progressBar.visibility = View.VISIBLE
-            try {
-                firestore.collection("users").document(userId)
-                    .get()
-                    .addOnSuccessListener { document ->
-                        progressBar.visibility = View.GONE
-                        if (document != null && document.exists()) {
-                            val fullName = document.getString("name")
-                            userNameTextView.text = fullName ?: "Unknown User"
-                            val emailUser = document.getString("email")
-                            email.text = emailUser ?: "No email available"
-                            userpro.text = fullName ?: "Unknown User"
-                            bio.text = document.getString("bio")
-                            val imageUrl = document.getString("profileimage")
-                            if (!imageUrl.isNullOrEmpty()) {
-                                progressBar.visibility = View.VISIBLE
-                                Glide.with(this)
-                                    .load(imageUrl)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_launcher_foreground)
-                                    .error(R.drawable.ic_launcher_foreground)
-                                    .into(userProfileImage)
+            firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    progressBar.visibility = View.GONE
+                    if (document != null && document.exists()) {
+                        val fullName = document.getString("name")
+                        userNameTextView.text = fullName ?: "Unknown User"
+                        email.text = document.getString("email") ?: "No email available"
+                        userpro.text = fullName ?: "Unknown User"
+                        bio.text = document.getString("bio")
+                        val imageUrl = document.getString("profileimage")
+                        if (!imageUrl.isNullOrEmpty()) {
+                            Glide.with(this)
+                                .load(imageUrl)
+                                .circleCrop()
+                                .into(userProfileImage)
 
-                                Glide.with(this)
-                                    .load(imageUrl)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_launcher_foreground)
-                                    .error(R.drawable.ic_launcher_foreground)
-                                    .into(userProfilePage)
-                                progressBar.visibility = View.GONE
-                            } else {
-                                userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
-                                progressBar.visibility = View.GONE
-                            }
+                            Glide.with(this)
+                                .load(imageUrl)
+                                .circleCrop()
+                                .into(userProfilePage)
                         } else {
-                            handleInvalidUser(userNameTextView, userProfileImage)
+                            userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
                         }
-                    }
-                    .addOnFailureListener {
-                        progressBar.visibility = View.GONE
+                    } else {
                         handleInvalidUser(userNameTextView, userProfileImage)
                     }
-            } catch (e: Exception) {
-                progressBar.visibility = View.GONE
-                handleInvalidUser(userNameTextView, userProfileImage)
-            }
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    handleInvalidUser(userNameTextView, userProfileImage)
+                }
         } else {
             userNameTextView.text = "Guest"
             userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
             Toast.makeText(this, "No user is logged in.", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+    private fun loadUserPosts() {
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            firestore.collection("posts")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener { documents ->
+                    val userPosts = mutableListOf<Post>()
+                    for (document in documents) {
+                        val post = document.toObject(Post::class.java)
+                        userPosts.add(post)
+                    }
+                    postAdapter.updatePosts(userPosts)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to load posts.", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 

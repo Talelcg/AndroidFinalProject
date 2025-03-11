@@ -2,8 +2,11 @@ package com.project.easytravel
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -26,7 +29,7 @@ import com.project.easytravel.PostAdapter
 import kotlinx.coroutines.launch
 
 class AllTripsActivity : AppCompatActivity() {
-
+    private lateinit var searchLocation: EditText
     private lateinit var recyclerView: RecyclerView
     private lateinit var postAdapter: PostAdapter
     private lateinit var postViewModel: PostViewModel
@@ -41,6 +44,7 @@ class AllTripsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_all_trips)
 
         firebaseAuth = FirebaseAuth.getInstance()
+        searchLocation = findViewById(R.id.searchLocation)
 
         // Initialize views
         recyclerView = findViewById(R.id.recyclerViewPosts)
@@ -119,13 +123,30 @@ class AllTripsActivity : AppCompatActivity() {
             }
             true
         }
+        searchLocation.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
 
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterPostsByLocation(s.toString())
+            }
+        })
         updateUserDetails(navigationView)
     }
 
     fun refreshPosts() {
         postViewModel.loadPosts()
     }
+
+    private fun filterPostsByLocation(location: String) {
+        val filteredList = postViewModel.allPosts.value?.filter { post ->
+            post.place.contains(location, ignoreCase = true)
+        } ?: emptyList()
+
+        postAdapter.updatePosts(filteredList)
+    }
+
     private fun updateUserDetails(navigationView: NavigationView) {
         val headerView = navigationView.getHeaderView(0)
         val userNameTextView = headerView.findViewById<TextView>(R.id.user_name)

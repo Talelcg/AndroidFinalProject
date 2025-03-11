@@ -25,9 +25,10 @@
 
         <LinearLayout
             android:id="@+id/mainContent"
-            android:layout_width="421dp"
-            android:layout_height="620dp"
             android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
             android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -71,7 +72,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Generate Travel Plan" />
-
+            <Button
+                android:id="@+id/btnSharePlan"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+android:background="@drawable/baseline_share_24"
+                android:visibility="gone"/>
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleLarge"
@@ -83,7 +89,7 @@
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="302dp"
                 android:padding="16dp">
 
                 <TextView
@@ -92,7 +98,9 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="" /> <!-- אפשר להגדיר גובה מקסימלי אם צריך -->
+
             </ScrollView>
+
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

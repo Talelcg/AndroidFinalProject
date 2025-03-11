@@ -2,6 +2,8 @@ package com.project.easytravel
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -29,10 +31,13 @@ class TravelPlanner : AppCompatActivity() {
     private lateinit var userProfileImage: ImageView
     private lateinit var userNameTextView: TextView  // TextView for username
 
+    private lateinit var txtPlanResult: TextView
+    private lateinit var btnSharePlan: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_travel_planner)
-
+         txtPlanResult = findViewById<TextView>(R.id.txtPlanResult)
+         btnSharePlan = findViewById<Button>(R.id.btnSharePlan)
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
@@ -53,6 +58,28 @@ class TravelPlanner : AppCompatActivity() {
         // Initialize the user profile image and username TextView
         userProfileImage = headerView.findViewById(R.id.user_profile_image)
         userNameTextView = headerView.findViewById(R.id.user_name)
+
+        btnSharePlan.setOnClickListener {
+            val textToShare = txtPlanResult.text.toString().trim()
+            if (textToShare.isNotEmpty()) {
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, textToShare)
+                    type = "text/plain"
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share via"))
+            }
+        }
+
+// הצג את כפתור השיתוף רק כאשר יש תוכן ב-txtPlanResult
+        txtPlanResult.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                btnSharePlan.visibility = if (s.isNullOrBlank()) View.GONE else View.VISIBLE
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
 
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
