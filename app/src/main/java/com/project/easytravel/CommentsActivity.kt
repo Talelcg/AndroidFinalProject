@@ -55,7 +55,7 @@ class CommentsActivity : AppCompatActivity() {
         firebaseModel = FirebaseModel()
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        commentAdapter = CommentAdapter(mutableListOf(), emptyMap())
+        commentAdapter = CommentAdapter(mutableListOf(), emptyMap(),::deleteComment)
         recyclerView.adapter = commentAdapter
 
 
@@ -71,6 +71,7 @@ class CommentsActivity : AppCompatActivity() {
 
         loadComments()
     }
+
 
     private fun postComment() {
         val commentText = editTextComment.text.toString().trim()
@@ -95,38 +96,56 @@ class CommentsActivity : AppCompatActivity() {
             Toast.makeText(this, "Comment cannot be empty!", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun loadComments() {
-        Log.d("CommentsActivity", "Loading comments...")
-        progressBar.visibility = View.VISIBLE
-
-        // שליפת התגובות מרום (מקבלות עדיפות נמוכה יותר)
+    private fun deleteComment(comment: Comment) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val roomComments = commentDao.getCommentsForPostSuspend(postId)
-            val usersMap = commentDao.getAllUsers().associateBy { it.id }
+            commentDao.deleteComment(comment)
+            firebaseModel.deleteComment(comment, postId)
 
             withContext(Dispatchers.Main) {
-                commentAdapter.updateComments(roomComments.toMutableList(), usersMap)
+                commentAdapter.removeComment(comment)
             }
         }
+    }
 
-        // מאזין לשינויים ב-Firebase כדי לעדכן את ה-UI בזמן אמת
-        firebaseModel.listenForComments(postId) { firebaseComments ->
-            Log.d("CommentsActivity", "Received ${firebaseComments.size} comments from Firebase")
+    private fun loadComments() {
+        progressBar.visibility = View.VISIBLE
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                for (comment in firebaseComments) {
-                    commentDao.insertComment(comment) // הכנס ל-Room כדי לשמור עקביות מקומית
-                }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val roomComments = commentDao.getCommentsForPostSuspend(postId)
 
-                val updatedComments = commentDao.getCommentsForPostSuspend(postId)
-                val updatedUsers = commentDao.getAllUsers().associateBy { it.id }
+            // שליפת משתמשים מ-Firebase ולא רק מ-Room
+            firebaseModel.getAllUsers { firebaseUsers ->
+                val usersMap = firebaseUsers.associateBy { it.id }
 
-                withContext(Dispatchers.Main) {
-                    commentAdapter.updateComments(updatedComments.toMutableList(), updatedUsers)
+                runOnUiThread {
+                    commentAdapter.updateComments(roomComments.toMutableList(), usersMap)
                     progressBar.visibility = View.GONE
                 }
             }
         }
+
+        // מאזין לשינויים בתגובות ב-Firebase
+        firebaseModel.listenForComments(postId) { firebaseComments ->
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                for (comment in firebaseComments) {
+                    commentDao.insertComment(comment) // שמירה ב-Room
+                }
+
+                val updatedComments = commentDao.getCommentsForPostSuspend(postId)
+
+                // שולף את המשתמשים המעודכנים ישירות מ-Firebase
+                firebaseModel.getAllUsers { firebaseUsers ->
+                    val updatedUsers = firebaseUsers.associateBy { it.id }
+
+                    runOnUiThread {
+                        commentAdapter.updateComments(updatedComments.toMutableList(), updatedUsers)
+                        progressBar.visibility = View.GONE
+                    }
+                }
+            }
+        }
     }
+
 
 }
