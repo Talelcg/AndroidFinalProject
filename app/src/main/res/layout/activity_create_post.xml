@@ -51,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text_bg"
                 android:hint="Title"
+                android:maxLength="25"
                 android:padding="12dp"
                 android:textSize="16sp" />
 
@@ -61,6 +62,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/edit_text_bg"
                 android:hint="Location"
+                android:maxLength="20"
                 android:padding="12dp"
                 android:textSize="16sp" />
 

@@ -62,10 +62,10 @@ class CommentsActivity : AppCompatActivity() {
 
         buttonPostComment.setOnClickListener { postComment() }
         buttonBack.setOnClickListener {
-            val intent = Intent(this@CommentsActivity, AllTripsActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            intent.putExtra("refreshPosts", true)
-            startActivity(intent)
+           // val intent = Intent(this@CommentsActivity, AllTripsActivity::class.java)
+            //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            //intent.putExtra("refreshPosts", true)
+            //startActivity(intent)
             finish()
         }
 
@@ -85,6 +85,10 @@ class CommentsActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     editTextComment.text.clear()
                     loadComments()
+
+
+
+
                 }
             }
         } else {

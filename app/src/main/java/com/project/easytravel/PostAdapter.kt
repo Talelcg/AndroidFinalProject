@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
@@ -54,7 +55,8 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             val formattedDate = formatter.format(date)
             postUploadDate.text = formattedDate
-
+            postComments.text = "${post.comments.size} Comments"
+            listenForCommentsUpdates(post.id, postComments)
             firestore.collection("users").document(post.userId)
                 .get()
                 .addOnSuccessListener { document ->
@@ -87,14 +89,27 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
             }
 
             likeButton.setOnClickListener {
-                viewModel.toggleLike(post)
-                // Update the icon after clicking
-                if (post.likes.contains(currentUserId)) {
-                    likeButton.setImageResource(R.drawable.unl)
-                } else {
-                    likeButton.setImageResource(R.drawable.ic_like)
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                if (currentUserId != null) {
+                    if (post.likes.contains(currentUserId)) {
+                        post.likes.remove(currentUserId)
+                        likeButton.setImageResource(R.drawable.unl) // שינוי לאייקון ריק
+                    } else {
+                        post.likes.add(currentUserId)
+                        likeButton.setImageResource(R.drawable.ic_like) // שינוי לאייקון מלא
+                    }
+
+                    postLikes.text = "${post.likes.size} Likes" // עדכון המונה
+
+
+                    firestore.collection("posts").document(post.id)
+                        .update("likes", post.likes)
+                        .addOnFailureListener {
+                            Toast.makeText(itemView.context, "Failed to update like", Toast.LENGTH_SHORT).show()
+                        }
                 }
             }
+
 
             commentButton.setOnClickListener {
                 val context = itemView.context
@@ -117,7 +132,7 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
                     .setMessage("Would you like to update or delete this post?")
                     .setPositiveButton("Update") { dialog, which ->
                         val intent = Intent(context, Update_Post::class.java)
-                        intent.putExtra("postId", post.id) // Pass post ID
+                        intent.putExtra("postId", post.id)
                         intent.putExtra("postTitle", post.title)
                         intent.putExtra("postLocation", post.place)
                         intent.putExtra("postDescription", post.description)
@@ -192,4 +207,20 @@ class PostAdapter(private var postList: MutableList<Post>, private val viewModel
         postList.sortByDescending { it.uploadDate }
         notifyDataSetChanged()
     }
+    private fun listenForCommentsUpdates(postId: String, postComments: TextView) {
+        firestore.collection("comments")
+            .whereEqualTo("postId", postId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("PostAdapter", "Error listening for comments updates", error)
+                    return@addSnapshotListener
+                }
+
+                snapshot?.let {
+                    val commentsCount = it.size()
+                    postComments.text = "$commentsCount Comments"
+                }
+            }
+    }
+
 }
