@@ -125,11 +125,19 @@ class Update_Details : AppCompatActivity() {
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
             val userId = currentUser.uid
-            val updatedUser = User(id = userId, name = updatedName, bio = updatedBio, email = "", profileimage = imageUri?.toString() ?: "")
+            val updatedUser = User(
+                id = userId,
+                name = updatedName,
+                bio = updatedBio,
+                email = "",
+                profileimage = imageUri?.toString() ?: "" // תמונה תתעדכן בהמשך אם תועלה
+            )
 
             lifecycleScope.launch {
+                // עדכון ב- Room
                 withContext(Dispatchers.IO) { userDao.updateUser(updatedUser) }
 
+                // עדכון בפיירבייס
                 firestoreModel.updateUserDetails(userId, updatedName, updatedBio) { success ->
                     if (success) {
                         if (imageUri != null) {
@@ -145,6 +153,7 @@ class Update_Details : AppCompatActivity() {
             }
         }
     }
+
 
     private fun uploadImageToCloudinary() {
         imageUri?.let { uri ->

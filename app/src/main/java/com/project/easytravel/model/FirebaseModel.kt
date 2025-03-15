@@ -187,9 +187,36 @@ class FirebaseModel {
             val users = result.mapNotNull { it.toObject(User::class.java) }
             callback(users)
         }.addOnFailureListener {
-            callback(emptyList()) // במקרה של כשלון, מחזירים רשימה ריקה
+            callback(emptyList())
         }
     }
+    fun deleteComment(comment: Comment, postId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val postRef = db.collection("posts").document(postId)
+        val commentRef = postRef.collection("comments").document(comment.id)
+        val globalCommentRef = db.collection("comments").document(comment.id)
+
+        db.runTransaction { transaction ->
+            // קודם כל, קריאת הנתונים (פוסט ותגובות)
+            val snapshot = transaction.get(postRef)
+            val commentsList = snapshot.get("comments") as? MutableList<String> ?: mutableListOf()
+
+            // עכשיו, אפשר למחוק את התגובה
+            transaction.delete(commentRef)
+            transaction.delete(globalCommentRef)
+
+            // עדכון מערך ה-comments בפוסט - הסרת ה-ID של התגובה
+            commentsList.remove(comment.id)
+            transaction.update(postRef, "comments", commentsList)
+        }.addOnSuccessListener {
+            Log.d("FirebaseModel", "Comment deleted and removed from post successfully")
+        }.addOnFailureListener {
+            Log.e("FirebaseModel", "Failed to delete comment", it)
+        }
+    }
+
+
+
     fun listenForComments(postId: String, onCommentsReceived: (List<Comment>) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val commentsRef = db.collection("comments")
