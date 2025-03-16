@@ -13,6 +13,10 @@
         android:icon="@drawable/edit_road"
         android:title="Plan &amp; Go" />
     <item
+        android:id="@+id/Weather"
+        android:icon="@drawable/baseline_cloud_queue_24"
+        android:title="Weather " />
+    <item
         android:id="@+id/nav_create_post"
         android:icon="@drawable/addpost"
         android:title="Create Post" />

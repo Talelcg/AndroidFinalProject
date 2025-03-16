@@ -153,6 +153,7 @@ class Update_Post : AppCompatActivity() {
                 val intent = Intent(this, AllTripsActivity::class.java)
 
                 startActivity(intent)
+
                 finish()
             }
             .addOnFailureListener {

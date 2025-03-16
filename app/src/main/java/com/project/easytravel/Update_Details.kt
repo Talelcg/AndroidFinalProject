@@ -130,7 +130,7 @@ class Update_Details : AppCompatActivity() {
                 name = updatedName,
                 bio = updatedBio,
                 email = "",
-                profileimage = imageUri?.toString() ?: "" // תמונה תתעדכן בהמשך אם תועלה
+                profileimage = imageUri?.toString() ?: ""
             )
 
             lifecycleScope.launch {

@@ -29,7 +29,7 @@ class TravelPlanner : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var userProfileImage: ImageView
-    private lateinit var userNameTextView: TextView  // TextView for username
+    private lateinit var userNameTextView: TextView
 
     private lateinit var txtPlanResult: TextView
     private lateinit var btnSharePlan: Button
@@ -196,6 +196,11 @@ class TravelPlanner : AppCompatActivity() {
                 }
                 R.id.nav_travelplanner -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.Weather-> {
+
+                    val intent = Intent(this, WeatherActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_logout -> {
                     FirebaseAuth.getInstance().signOut()

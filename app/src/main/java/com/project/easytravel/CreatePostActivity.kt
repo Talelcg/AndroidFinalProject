@@ -85,7 +85,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
         val buttonBack = findViewById<ImageButton>(R.id.buttonBack)
         buttonBack.setOnClickListener {
-            onBackPressed()  // פעולה שמחזירה אותך למסך הקודם
+            onBackPressed()
         }
 
 
@@ -172,7 +172,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
 
             lifecycleScope.launch {
                 val existingPost = withContext(Dispatchers.IO) {
-                    postDao.getPostById(postId)  // Check by unique ID
+                    postDao.getPostById(postId)
                 }
 
                 withContext(Dispatchers.Main) {
@@ -235,7 +235,7 @@ class CreatePostActivity : AppCompatActivity(), NavigationView.OnNavigationItemS
     private fun fetchPostDetails(postId: String) {  // Pass postId as parameter
         lifecycleScope.launch {
             val existingPost = withContext(Dispatchers.IO) {
-                postDao.getPostById(postId)  // Retrieve post by unique ID
+                postDao.getPostById(postId)
             }
 
             if (existingPost != null) {

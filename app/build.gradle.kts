@@ -22,6 +22,7 @@ android {
         buildConfigField("String", "CLOUD_NAME", "\"${project.properties["CLOUD_NAME"] ?: ""}\"")
         buildConfigField("String", "API_KEY", "\"${project.properties["API_KEY"] ?: ""}\"")
         buildConfigField("String", "API_SECRET", "\"${project.properties["API_SECRET"] ?: ""}\"")
+        buildConfigField ("String", "WEATHER_API_KEY", "\"${project.properties["WEATHER_API_KEY"] ?: ""}\"")
     }
 
     buildTypes {
@@ -85,11 +86,17 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10")
-    implementation ("com.google.firebase:firebase-auth:21.0.5")
 
 
-    implementation ("com.google.android.gms:play-services-auth:20.6.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
+
+        implementation ("com.github.bumptech.glide:glide:4.15.1")
+        annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+
+    implementation("com.google.firebase:firebase-auth:22.1.2")
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
 }
