@@ -46,7 +46,7 @@ class CommentsActivity : AppCompatActivity() {
         editTextComment = findViewById(R.id.editTextComment)
         buttonPostComment = findViewById(R.id.buttonPostComment)
         buttonBack = findViewById(R.id.buttonBack)
-        progressBar = findViewById(R.id.progressBar) // מקבלים את הספינר
+        progressBar = findViewById(R.id.progressBar)
 
         postId = intent.getStringExtra("postId") ?: return
 
@@ -58,14 +58,8 @@ class CommentsActivity : AppCompatActivity() {
         commentAdapter = CommentAdapter(mutableListOf(), emptyMap(),::deleteComment)
         recyclerView.adapter = commentAdapter
 
-
-
         buttonPostComment.setOnClickListener { postComment() }
         buttonBack.setOnClickListener {
-           // val intent = Intent(this@CommentsActivity, AllTripsActivity::class.java)
-            //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            //intent.putExtra("refreshPosts", true)
-            //startActivity(intent)
             finish()
         }
 
@@ -113,7 +107,6 @@ class CommentsActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val roomComments = commentDao.getCommentsForPostSuspend(postId)
 
-            // שליפת משתמשים מ-Firebase ולא רק מ-Room
             firebaseModel.getAllUsers { firebaseUsers ->
                 val usersMap = firebaseUsers.associateBy { it.id }
 
@@ -124,7 +117,6 @@ class CommentsActivity : AppCompatActivity() {
             }
         }
 
-        // מאזין לשינויים בתגובות ב-Firebase
         firebaseModel.listenForComments(postId) { firebaseComments ->
 
             lifecycleScope.launch(Dispatchers.IO) {
@@ -134,7 +126,7 @@ class CommentsActivity : AppCompatActivity() {
 
                 val updatedComments = commentDao.getCommentsForPostSuspend(postId)
 
-                // שולף את המשתמשים המעודכנים ישירות מ-Firebase
+
                 firebaseModel.getAllUsers { firebaseUsers ->
                     val updatedUsers = firebaseUsers.associateBy { it.id }
 

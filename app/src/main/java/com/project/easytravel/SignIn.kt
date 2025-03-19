@@ -28,6 +28,10 @@ class SignIn : AppCompatActivity() {
             val intent = Intent(this, ResetPassword::class.java)
             startActivity(intent)
         }
+        binding.infoButton.setOnClickListener {
+            val intent = Intent(this, InfoActivity::class.java)
+            startActivity(intent)
+        }
 
         binding.button.setOnClickListener {
             val email = binding.emailEt.text.toString().trim()

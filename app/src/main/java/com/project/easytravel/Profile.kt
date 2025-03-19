@@ -91,6 +91,11 @@ class Profile : AppCompatActivity() {
                     startActivity(Intent(this, TravelPlanner::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
+                R.id.Weather-> {
+
+                    val intent = Intent(this, WeatherActivity::class.java)
+                    startActivity(intent)
+                }
                 R.id.nav_logout -> {
                     FirebaseAuth.getInstance().signOut()
                     val intent = Intent(this, SignIn::class.java)
@@ -148,7 +153,7 @@ class Profile : AppCompatActivity() {
                                 .circleCrop()
                                 .into(userProfilePage)
                         } else {
-                            userProfileImage.setImageResource(R.drawable.ic_launcher_foreground)
+                            userProfileImage.setImageResource(R.drawable.profile)
                         }
                     } else {
                         handleInvalidUser(userNameTextView, userProfileImage)

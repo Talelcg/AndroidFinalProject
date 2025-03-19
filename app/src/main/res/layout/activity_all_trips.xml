@@ -36,10 +36,12 @@
             app:layout_constraintRight_toRightOf="parent"
             tools:ignore="MissingConstraints" />
 
+        <!-- SwipeRefreshLayout -->
         <EditText
             android:id="@+id/searchLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:src="@drawable/rounded_button"
             android:background="@drawable/rounded_button"
             android:drawableLeft="@android:drawable/ic_menu_search"
             android:hint="Search by location"
@@ -47,9 +49,10 @@
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
             app:layout_constraintBottom_toTopOf="@+id/swipeRefreshLayout"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_bias="1.0"
+            tools:layout_editor_absoluteX="0dp" />
 
-        <!-- SwipeRefreshLayout -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"

@@ -73,9 +73,9 @@ class CommentAdapter(
         usersMap = newUsersMap
 
         if (hasUserChanged) {
-            notifyDataSetChanged() // אם יש שינוי בפרטי המשתמשים, רענן הכל
+            notifyDataSetChanged()
         } else {
-            notifyItemRangeChanged(0, comments.size) // אחרת, רענון מינימלי
+            notifyItemRangeChanged(0, comments.size)
         }
     }
 

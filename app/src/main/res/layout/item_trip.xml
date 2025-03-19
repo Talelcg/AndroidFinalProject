@@ -39,11 +39,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="start"
+                android:gravity="start|right"
                 android:textStyle="bold"
                 android:textColor="@color/gray"
                 android:textSize="14sp"
                 android:text="Mountains of Israel"
+                android:textDirection="rtl"
                 android:fontFamily="sans-serif-medium"/>
 
             <!-- Upload Date -->
